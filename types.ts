@@ -2,7 +2,7 @@
 export interface RoomInput {
   id: string;
   name: string;
-  kwh: number;
+  kwh: string | number;
 }
 
 export interface RentalRoomTemplate {

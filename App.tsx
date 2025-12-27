@@ -103,7 +103,7 @@ const ComputationBreakdown: React.FC<{ bill: BillRecord }> = ({ bill }) => (
       <div className="p-2 bg-slate-700/30 rounded-lg">
         <p className="text-slate-400 mb-1">1. Identify Meter Discrepancy</p>
         <div className="flex justify-between items-center text-sm">
-          <span>{bill.mainMeterKwh} (Main) - {bill.totalSubmeterKwh} (Sub)</span>
+          <span>{bill.mainMeterKwh.toFixed(2)} (Main) - {bill.totalSubmeterKwh.toFixed(2)} (Sub)</span>
           <span className="font-bold text-amber-400">={bill.missingKwh.toFixed(2)} kWh Loss</span>
         </div>
       </div>
@@ -117,7 +117,7 @@ const ComputationBreakdown: React.FC<{ bill: BillRecord }> = ({ bill }) => (
                 <span>₱{room.billAmount.toFixed(2)}</span>
               </div>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] text-slate-400 mt-1">
-                <div>Usage: <span className="text-white">{room.originalKwh} kWh</span></div>
+                <div>Usage: <span className="text-white">{room.originalKwh.toFixed(2)} kWh</span></div>
                 <div>Share: <span className="text-white">{(room.share * 100).toFixed(2)}%</span></div>
                 <div>Loss Share: <span className="text-white">+{room.compensationKwh.toFixed(2)} kWh</span></div>
                 <div>Final: <span className="text-white">{room.finalKwh.toFixed(2)} kWh</span></div>
@@ -132,10 +132,10 @@ const ComputationBreakdown: React.FC<{ bill: BillRecord }> = ({ bill }) => (
 
 interface LandingViewProps {
   setView: (v: AppView) => void;
-  landingMainKwh: number;
-  setLandingMainKwh: (v: number) => void;
-  rate: number;
-  setRate: (v: number) => void;
+  landingMainKwh: string;
+  setLandingMainKwh: (v: string) => void;
+  rate: string;
+  setRate: (v: string) => void;
   landingRooms: RoomInput[];
   setLandingRooms: (v: RoomInput[]) => void;
   landingResult: BillRecord | null;
@@ -192,25 +192,25 @@ const LandingView: React.FC<LandingViewProps> = ({
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Main Meter (kWh)</label>
-              <input type="number" step="any" value={landingMainKwh} onChange={(e) => setLandingMainKwh(parseFloat(e.target.value) || 0)} className="w-full bg-slate-50 px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-lg font-bold" />
+              <input type="text" inputMode="decimal" value={landingMainKwh} onChange={(e) => setLandingMainKwh(e.target.value)} className="w-full bg-slate-50 px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-lg font-bold" />
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rate (₱/kWh)</label>
-              <input type="number" step="any" value={rate} onChange={(e) => setRate(parseFloat(e.target.value) || 0)} className="w-full bg-slate-50 px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-lg font-bold" />
+              <input type="text" inputMode="decimal" value={rate} onChange={(e) => setRate(e.target.value)} className="w-full bg-slate-50 px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-lg font-bold" />
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Room Submeters</label>
-              <button onClick={() => setLandingRooms([...landingRooms, { id: Date.now().toString(), name: `Room ${landingRooms.length+1}`, kwh: 0 }])} className="text-blue-600 text-xs font-bold hover:underline">+ Add Room</button>
+              <button onClick={() => setLandingRooms([...landingRooms, { id: Date.now().toString(), name: `Room ${landingRooms.length+1}`, kwh: '0' }])} className="text-blue-600 text-xs font-bold hover:underline">+ Add Room</button>
             </div>
             <div className="space-y-3">
               {landingRooms.map(r => (
                 <div key={r.id} className="flex gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-transparent hover:border-slate-200 transition">
                   <input type="text" value={r.name} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, name: e.target.value} : lr))} className="flex-1 bg-transparent border-none p-0 text-sm font-bold text-slate-700 focus:ring-0" />
                   <div className="flex items-center gap-2">
-                    <input type="number" step="any" value={r.kwh} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, kwh: parseFloat(e.target.value) || 0} : lr))} className="w-24 bg-white px-3 py-2 rounded-lg border border-slate-200 text-right font-bold text-sm" />
+                    <input type="text" inputMode="decimal" value={r.kwh} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, kwh: e.target.value} : lr))} className="w-24 bg-white px-3 py-2 rounded-lg border border-slate-200 text-right font-bold text-sm" />
                     <span className="text-xs text-slate-400 font-bold">kWh</span>
                   </div>
                 </div>
@@ -318,24 +318,24 @@ const App: React.FC = () => {
   const [showBreakdown, setShowBreakdown] = useState(false);
 
   // Global Calculation Config
-  const [rate, setRate] = useState<number>(12);
+  const [rate, setRate] = useState<string>('12');
   const [month, setMonth] = useState<string>(new Date().toLocaleString('default', { month: 'long' }));
   const [year, setYear] = useState<number>(new Date().getFullYear());
 
   // Landing Calculator State
-  const [landingMainKwh, setLandingMainKwh] = useState<number>(200);
+  const [landingMainKwh, setLandingMainKwh] = useState<string>('200');
   const [landingRooms, setLandingRooms] = useState<RoomInput[]>([
-    { id: 'l1', name: 'Room 1', kwh: 90 },
-    { id: 'l2', name: 'Room 2', kwh: 100 },
+    { id: 'l1', name: 'Room 1', kwh: '90' },
+    { id: 'l2', name: 'Room 2', kwh: '100' },
   ]);
   const [landingResult, setLandingResult] = useState<BillRecord | null>(null);
 
   // Main Calculator State
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
-  const [mainKwh, setMainKwh] = useState<number>(0);
+  const [mainKwh, setMainKwh] = useState<string>('0');
   const [rooms, setRooms] = useState<RoomInput[]>([
-    { id: '1', name: 'Room 1', kwh: 0 },
-    { id: '2', name: 'Room 2', kwh: 0 },
+    { id: '1', name: 'Room 1', kwh: '0' },
+    { id: '2', name: 'Room 2', kwh: '0' },
   ]);
   const [tempCalculation, setTempCalculation] = useState<BillRecord | null>(null);
 
@@ -369,7 +369,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const result = calculateBill(landingMainKwh, rate, landingRooms, month, year);
     setLandingResult(result);
-  }, [landingMainKwh, rate, landingRooms, rate]);
+  }, [landingMainKwh, rate, landingRooms]);
 
   const handleAuth = async (e: React.FormEvent, type: 'signin' | 'signup') => {
     e.preventDefault();
@@ -474,12 +474,12 @@ const App: React.FC = () => {
     setSelectedPropertyId(id);
     const property = rentals.find(r => r.id === id);
     if (property) {
-      setRooms(property.rooms.map(r => ({ id: r.id, name: r.name, kwh: 0 })));
+      setRooms(property.rooms.map(r => ({ id: r.id, name: r.name, kwh: '0' })));
     }
   };
 
   const addRoom = () => {
-    setRooms([...rooms, { id: Date.now().toString(), name: `Room ${rooms.length + 1}`, kwh: 0 }]);
+    setRooms([...rooms, { id: Date.now().toString(), name: `Room ${rooms.length + 1}`, kwh: '0' }]);
   };
 
   const updateRoom = (id: string, updates: Partial<RoomInput>) => {
@@ -508,8 +508,8 @@ const App: React.FC = () => {
         const updated = await storageService.getBills(user.id);
         setBills(updated);
         setTempCalculation(null);
-        setMainKwh(0);
-        setRooms(rooms.map(r => ({ ...r, kwh: 0 })));
+        setMainKwh('0');
+        setRooms(rooms.map(r => ({ ...r, kwh: '0' })));
         setView('history');
       } catch (err: any) {
         alert("Failed to save: " + err.message);
@@ -734,8 +734,8 @@ const App: React.FC = () => {
                         <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Month</label><select value={month} onChange={(e) => setMonth(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500">{['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => (<option key={m} value={m}>{m}</option>))}</select></div>
                         <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Year</label><input type="number" value={year} onChange={(e) => setYear(parseInt(e.target.value))} className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500" /></div>
                       </div>
-                      <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Rate (₱/kWh)</label><input type="number" step="any" value={rate} onChange={(e) => setRate(parseFloat(e.target.value) || 0)} className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-xl font-bold text-blue-600" /></div>
-                      <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Main Meter Reading (kWh)</label><input type="number" step="any" value={mainKwh} onChange={(e) => setMainKwh(parseFloat(e.target.value) || 0)} className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-xl font-bold" /></div>
+                      <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Rate (₱/kWh)</label><input type="text" inputMode="decimal" value={rate} onChange={(e) => setRate(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-xl font-bold text-blue-600" /></div>
+                      <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Main Meter Reading (kWh)</label><input type="text" inputMode="decimal" value={mainKwh} onChange={(e) => setMainKwh(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-xl font-bold" /></div>
                     </div>
                     <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                       <div className="flex justify-between items-center border-b pb-4 border-slate-100 mb-6"><h3 className="font-bold text-lg">Submeter Readings</h3><button onClick={addRoom} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition"><Plus size={20} /></button></div>
@@ -744,7 +744,7 @@ const App: React.FC = () => {
                           <div key={room.id} className="flex gap-4 items-center p-4 bg-slate-50 rounded-xl group relative border border-transparent hover:border-blue-100 transition">
                             <div className="flex-1">
                               <input type="text" value={room.name} onChange={(e) => updateRoom(room.id, { name: e.target.value })} className="w-full bg-transparent border-none p-0 text-sm font-bold text-slate-900 focus:ring-0" placeholder="Room ID" />
-                              <div className="flex items-center gap-2 mt-1"><input type="number" step="any" value={room.kwh} onChange={(e) => updateRoom(room.id, { kwh: parseFloat(e.target.value) || 0 })} className="w-full bg-white px-3 py-2 rounded-lg border border-slate-200 focus:outline-none text-lg font-bold" /><span className="text-xs text-slate-400 font-bold">kWh</span></div>
+                              <div className="flex items-center gap-2 mt-1"><input type="text" inputMode="decimal" value={room.kwh} onChange={(e) => updateRoom(room.id, { kwh: e.target.value })} className="w-full bg-white px-3 py-2 rounded-lg border border-slate-200 focus:outline-none text-lg font-bold" /><span className="text-xs text-slate-400 font-bold">kWh</span></div>
                             </div>
                             <button onClick={() => removeRoom(room.id)} className="p-2 text-slate-300 hover:text-red-500 transition"><Trash2 size={18} /></button>
                           </div>
@@ -777,7 +777,7 @@ const App: React.FC = () => {
                               <div className="space-y-3">
                                 {tempCalculation.rooms.map((room) => (
                                   <div key={room.id} className="bg-slate-800/50 p-4 rounded-xl flex justify-between items-center border border-slate-700">
-                                    <div><p className="font-bold">{room.name}</p><p className="text-[10px] text-slate-400">Actual Usage: {room.originalKwh} kWh</p></div>
+                                    <div><p className="font-bold">{room.name}</p><p className="text-[10px] text-slate-400">Actual Usage: {room.originalKwh.toFixed(2)} kWh</p></div>
                                     <div className="text-right"><p className="font-bold text-emerald-400">₱{room.billAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p><p className="text-[10px] text-slate-500">{(room.share * 100).toFixed(1)}% Usage Share</p></div>
                                   </div>
                                 ))}
