@@ -1,0 +1,5 @@
+{
+  "name": "VoltShare - Electricity Bill Distributor",
+  "description": "A professional utility management tool that proportionally distributes electricity costs based on submeter readings and main meter discrepancies.",
+  "requestFramePermissions": []
+}
