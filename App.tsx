@@ -69,17 +69,17 @@ const BrandLogo: React.FC<{ className?: string, textClassName?: string, hideText
 // Animated Background Blobs
 const EnergyField = () => (
   <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-    <div className="energy-blob bg-blue-400 w-[500px] h-[500px] -top-24 -left-24" style={{ animationDelay: '0s' }}></div>
-    <div className="energy-blob bg-indigo-400 w-[600px] h-[600px] top-1/2 -right-48" style={{ animationDelay: '-5s' }}></div>
-    <div className="energy-blob bg-blue-600 w-[400px] h-[400px] -bottom-24 left-1/4" style={{ animationDelay: '-12s' }}></div>
+    <div className="energy-blob bg-blue-400 w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] -top-24 -left-24" style={{ animationDelay: '0s' }}></div>
+    <div className="energy-blob bg-indigo-400 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] top-1/2 -right-48" style={{ animationDelay: '-5s' }}></div>
+    <div className="energy-blob bg-blue-600 w-[250px] h-[250px] sm:w-[400px] sm:h-[400px] -bottom-24 left-1/4" style={{ animationDelay: '-12s' }}></div>
   </div>
 );
 
 // Computation Breakdown Component
 const ComputationBreakdown: React.FC<{ bill: BillRecord }> = ({ bill }) => (
-  <div className="space-y-4 animate-in fade-in duration-500">
-    <div className="overflow-x-auto">
-      <table className="w-full text-left border-separate border-spacing-y-2">
+  <div className="space-y-4 animate-in fade-in duration-500 w-full overflow-hidden">
+    <div className="overflow-x-auto -mx-4 px-4 pb-2">
+      <table className="w-full text-left border-separate border-spacing-y-2 min-w-[500px]">
         <thead>
           <tr className="text-[8px] font-black text-blue-400 uppercase tracking-widest">
             <th className="px-4 pb-2">Unit</th>
@@ -105,7 +105,7 @@ const ComputationBreakdown: React.FC<{ bill: BillRecord }> = ({ bill }) => (
     <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl">
       <p className="text-[10px] font-medium text-blue-300 leading-relaxed italic flex gap-2">
         <Info size={12} className="shrink-0" />
-        Loss Distribution Formula: [Raw Consumption / Total Submeter] × [Main Meter - Total Submeter]. This ensures system losses are paid proportionally by usage.
+        Loss Distribution Formula: [Raw Consumption / Total Submeter] × [Main Meter - Total Submeter].
       </p>
     </div>
   </div>
@@ -115,13 +115,13 @@ const ComputationBreakdown: React.FC<{ bill: BillRecord }> = ({ bill }) => (
 const ConfigErrorView: React.FC = () => (
   <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50 text-center relative overflow-hidden">
     <EnergyField />
-    <div className="max-w-md w-full bg-white p-10 rounded-[3rem] shadow-2xl border border-red-100 space-y-6 z-10 glass">
-      <div className="w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-4">
-        <AlertTriangle size={40} />
+    <div className="max-w-md w-full bg-white p-8 sm:p-10 rounded-[2.5rem] sm:rounded-[3rem] shadow-2xl border border-red-100 space-y-6 z-10 glass">
+      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-red-50 text-red-500 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4">
+        <AlertTriangle size={32} />
       </div>
-      <h2 className="text-3xl font-black text-slate-900 tracking-tighter">System Offline</h2>
-      <p className="text-slate-500 font-medium text-sm">Firebase credentials are missing or invalid. Please configure your environment variables to activate the VoltShare engine.</p>
-      <div className="bg-slate-50 p-4 rounded-2xl text-[10px] font-mono text-left overflow-auto text-slate-400 border border-slate-100">
+      <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter">System Offline</h2>
+      <p className="text-slate-500 font-medium text-sm">Firebase credentials are missing or invalid. Please configure your environment variables.</p>
+      <div className="bg-slate-50 p-4 rounded-xl text-[10px] font-mono text-left overflow-auto text-slate-400 border border-slate-100">
         FIREBASE_API_KEY=...<br/>
         FIREBASE_PROJECT_ID=...
       </div>
@@ -165,115 +165,116 @@ const LandingView: React.FC<LandingViewProps> = ({
   }, [landingMainKwh, liveTotalSubmeter]);
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       <EnergyField />
       
-      <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full z-10 animate-in fade-in slide-in-from-top-4 duration-700">
-        <BrandLogo />
-        <div className="flex gap-4 items-center">
-          <div className="hidden sm:flex items-center gap-2 bg-white/50 border border-slate-200/50 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter text-slate-500 glass">
+      <nav className="p-4 sm:p-6 flex justify-between items-center max-w-7xl mx-auto w-full z-10 animate-in fade-in slide-in-from-top-4 duration-700">
+        <BrandLogo className="h-8 w-8 sm:h-10 sm:w-10" textClassName="text-xl sm:text-2xl" />
+        <div className="flex gap-2 sm:gap-4 items-center">
+          <div className="hidden md:flex items-center gap-2 bg-white/50 border border-slate-200/50 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter text-slate-500 glass">
             <Globe size={12} className="text-blue-500 animate-pulse" />
             {globalUsage.toLocaleString()} Calcs Worldwide
           </div>
-          <button onClick={() => setView('signin')} className="px-4 py-2 text-slate-600 hover:text-blue-600 font-bold transition">Login</button>
-          <button onClick={() => setView('signup')} className="px-6 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200/50 hover:-translate-y-1 active:scale-95">Register</button>
+          <button onClick={() => setView('signin')} className="px-3 sm:px-4 py-2 text-slate-600 hover:text-blue-600 font-bold transition text-sm">Login</button>
+          <button onClick={() => setView('signup')} className="px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200/50 hover:-translate-y-1 active:scale-95 text-sm">Register</button>
         </div>
       </nav>
 
-      <main className="flex-1 max-w-7xl mx-auto w-full px-6 flex flex-col lg:flex-row items-center lg:items-start gap-12 pt-12 pb-20 z-10">
-        <div className="flex-1 space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
-          <div className="inline-flex items-center gap-2 bg-blue-100/80 text-blue-700 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest glass">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-12 pt-8 sm:pt-12 pb-20 z-10">
+        <div className="flex-1 space-y-6 sm:space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000 text-center lg:text-left w-full">
+          <div className="inline-flex items-center gap-2 bg-blue-100/80 text-blue-700 px-4 py-2 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest glass mx-auto lg:mx-0">
             <Sparkles size={14} className="animate-spin-slow" /> Powering Rental Clusters
           </div>
-          <h1 className="text-6xl md:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-slate-900 leading-[1] lg:leading-[0.9] tracking-tighter">
             Master Your <br/>
             <span className="gradient-text">Utility Logic.</span>
           </h1>
-          <p className="text-xl text-slate-500 max-w-lg leading-relaxed font-medium">
-            The ultimate proportional distribution algorithm. Eliminate tenant disputes by fairly allocating system losses based on real-time consumption shares.
+          <p className="text-base sm:text-lg lg:text-xl text-slate-500 max-w-lg leading-relaxed font-medium mx-auto lg:mx-0">
+            The ultimate proportional distribution algorithm. Eliminate tenant disputes by fairly allocating system losses.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-6 pt-4">
-            <button onClick={() => setView('signup')} className="px-10 py-5 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:bg-slate-800 transition shadow-2xl flex items-center justify-center gap-3 group">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 pt-4 justify-center lg:justify-start">
+            <button onClick={() => setView('signup')} className="px-8 sm:px-10 py-4 sm:py-5 bg-slate-900 text-white rounded-2xl font-bold text-base sm:text-lg hover:bg-slate-800 transition shadow-2xl flex items-center justify-center gap-3 group w-full sm:w-auto">
               Get Started Free <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform"/>
             </button>
-            <div className="flex items-center gap-4 p-4 rounded-2xl border border-slate-200/50 glass">
-              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
-                 <Receipt size={24} />
+            <div className="flex items-center gap-4 p-4 rounded-2xl border border-slate-200/50 glass w-full sm:w-auto justify-center sm:justify-start">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
+                 {/* Fix: removed sm:size prop and used responsive tailwind classes */}
+                 <Receipt className="w-5 h-5 sm:w-6 sm:h-6" />
               </div>
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Audit Trails</p>
+              <div className="text-left">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Audit Trails</p>
                 <p className="text-sm font-black text-slate-900">PDF & Excel Exports</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex-1 w-full max-w-2xl bg-white/80 p-8 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-white/50 glass animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
-          <div className="space-y-8">
-            <div className="flex justify-between items-end">
+        <div className="flex-1 w-full max-w-2xl bg-white/80 p-6 sm:p-8 rounded-[2.5rem] sm:rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-white/50 glass animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
+          <div className="space-y-6 sm:space-y-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
               <div>
-                <h3 className="text-3xl font-black text-slate-900">Live Lab</h3>
-                <p className="text-slate-500 text-sm font-medium">Configure and execute distribution</p>
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-900">Live Lab</h3>
+                <p className="text-slate-500 text-xs sm:text-sm font-medium">Configure and execute distribution</p>
               </div>
               {liveMissingKwh > 0 && (
-                <div className="flex flex-col items-end animate-in fade-in zoom-in-90">
+                <div className="flex flex-col items-start sm:items-end animate-in fade-in zoom-in-90">
                   <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Live Discrepancy</span>
-                  <span className="text-xl font-black text-amber-600">+{liveMissingKwh.toFixed(2)} kWh</span>
+                  <span className="text-lg sm:text-xl font-black text-amber-600">+{liveMissingKwh.toFixed(2)} kWh</span>
                 </div>
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2 group">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div className="space-y-1 sm:space-y-2 group">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2 group-hover:text-blue-500 transition">Main Meter (kWh)</label>
-                <input type="text" inputMode="decimal" value={landingMainKwh} onChange={(e) => setLandingMainKwh(e.target.value)} className="w-full bg-slate-50/50 px-5 py-4 rounded-2xl border-2 border-transparent focus:border-blue-500/20 focus:bg-white transition text-xl font-black outline-none" />
+                <input type="text" inputMode="decimal" value={landingMainKwh} onChange={(e) => setLandingMainKwh(e.target.value)} className="w-full bg-slate-50/50 px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-transparent focus:border-blue-500/20 focus:bg-white transition text-lg sm:text-xl font-black outline-none" />
               </div>
-              <div className="space-y-2 group">
+              <div className="space-y-1 sm:space-y-2 group">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2 group-hover:text-blue-500 transition">Rate (₱/kWh)</label>
-                <input type="text" inputMode="decimal" value={rate} onChange={(e) => setRate(e.target.value)} className="w-full bg-slate-50/50 px-5 py-4 rounded-2xl border-2 border-transparent focus:border-blue-500/20 focus:bg-white transition text-xl font-black outline-none" />
+                <input type="text" inputMode="decimal" value={rate} onChange={(e) => setRate(e.target.value)} className="w-full bg-slate-50/50 px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-transparent focus:border-blue-500/20 focus:bg-white transition text-lg sm:text-xl font-black outline-none" />
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="flex justify-between items-center px-2">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Property Units</label>
                 <button onClick={() => setLandingRooms([...landingRooms, { id: Date.now().toString(), name: `Unit ${landingRooms.length+1}`, kwh: '0' }])} className="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg text-[10px] font-black hover:bg-blue-100 transition uppercase tracking-wider">+ New Unit</button>
               </div>
-              <div className="space-y-3 max-h-64 overflow-y-auto pr-2 scrollbar-hide">
+              <div className="space-y-2 sm:space-y-3 max-h-60 sm:max-h-64 overflow-y-auto pr-1 sm:pr-2 scrollbar-hide">
                 {landingRooms.map(r => (
-                  <div key={r.id} className="flex gap-4 items-center bg-white border border-slate-100 p-5 rounded-[1.5rem] shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300">
-                    <input type="text" value={r.name} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, name: e.target.value} : lr))} className="flex-1 bg-transparent border-none p-0 text-sm font-black text-slate-700 focus:ring-0" />
-                    <div className="flex items-center gap-3">
-                      <input type="text" inputMode="decimal" value={r.kwh} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, kwh: e.target.value} : lr))} className="w-24 bg-slate-50 border-none px-4 py-2 rounded-xl text-right font-black text-sm focus:ring-2 focus:ring-blue-500/20" />
-                      <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">kWh</span>
+                  <div key={r.id} className="flex gap-3 sm:gap-4 items-center bg-white border border-slate-100 p-3 sm:p-5 rounded-xl sm:rounded-[1.5rem] shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300">
+                    <input type="text" value={r.name} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, name: e.target.value} : lr))} className="flex-1 bg-transparent border-none p-0 text-xs sm:text-sm font-black text-slate-700 focus:ring-0" />
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                      <input type="text" inputMode="decimal" value={r.kwh} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, kwh: e.target.value} : lr))} className="w-16 sm:w-24 bg-slate-50 border-none px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-right font-black text-xs sm:text-sm focus:ring-2 focus:ring-blue-500/20" />
+                      <span className="text-[8px] sm:text-[10px] text-slate-400 font-black uppercase tracking-widest">kWh</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center pt-2">
               <button 
                 onClick={handleLandingCalculate} 
                 disabled={actionLoading}
-                className={`px-10 py-3 rounded-xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 border-2 ${isStale ? 'bg-amber-500 border-amber-600 text-white' : 'bg-blue-600 border-blue-700 text-white hover:bg-blue-700'}`}
+                className={`px-8 sm:px-10 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-sm sm:text-base shadow-xl transition active:scale-95 flex items-center justify-center gap-2 border-2 w-full sm:w-auto ${isStale ? 'bg-amber-500 border-amber-600 text-white' : 'bg-blue-600 border-blue-700 text-white hover:bg-blue-700'}`}
               >
                 {actionLoading ? <Loader2 className="animate-spin" size={20}/> : <><Calculator size={20}/> Calculate bill</>}
               </button>
             </div>
 
             {landingResult && (
-              <div className={`bg-slate-900 rounded-[2.5rem] p-8 text-white space-y-8 animate-in zoom-in-95 duration-500 shadow-2xl relative overflow-hidden transition-all duration-500 ${isStale ? 'opacity-40 grayscale-[0.5] scale-[0.98]' : 'opacity-100'}`}>
+              <div className={`bg-slate-900 rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 text-white space-y-6 sm:space-y-8 animate-in zoom-in-95 duration-500 shadow-2xl relative overflow-hidden transition-all duration-500 ${isStale ? 'opacity-40 grayscale-[0.5] scale-[0.98]' : 'opacity-100'}`}>
                 <div className="absolute top-0 right-0 p-8 opacity-5"><Zap size={100} /></div>
-                <div className="relative z-10 flex justify-between items-start">
+                <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                   <div>
                     <p className="text-[10px] text-blue-400 uppercase font-bold tracking-widest mb-1">Energy Loss Shared</p>
-                    <p className="text-3xl font-black text-amber-400">{landingResult.missingKwh.toFixed(2)} <span className="text-sm font-medium">kWh</span></p>
+                    <p className="text-2xl sm:text-3xl font-black text-amber-400">{landingResult.missingKwh.toFixed(2)} <span className="text-xs sm:text-sm font-medium">kWh</span></p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right">
                     <p className="text-[10px] text-blue-400 uppercase font-bold tracking-widest mb-1">Total Cluster Bill</p>
-                    <p className="text-3xl font-black">₱{landingResult.rooms.reduce((s, r) => s + r.billAmount, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                    <p className="text-2xl sm:text-3xl font-black">₱{landingResult.rooms.reduce((s, r) => s + r.billAmount, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                   </div>
                 </div>
 
@@ -287,11 +288,11 @@ const LandingView: React.FC<LandingViewProps> = ({
                   </div>
                   
                   {!showBreakdown ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                       {landingResult.rooms.map(room => (
-                        <div key={room.id} className="flex justify-between items-center bg-white/5 border border-white/10 p-4 rounded-2xl">
-                          <span className="text-xs font-bold text-slate-300">{room.name}</span>
-                          <span className="font-black text-sm">₱{room.billAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        <div key={room.id} className="flex justify-between items-center bg-white/5 border border-white/10 p-3 sm:p-4 rounded-xl sm:rounded-2xl">
+                          <span className="text-[10px] sm:text-xs font-bold text-slate-300 truncate pr-2">{room.name}</span>
+                          <span className="font-black text-xs sm:text-sm whitespace-nowrap">₱{room.billAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                         </div>
                       ))}
                     </div>
@@ -300,14 +301,14 @@ const LandingView: React.FC<LandingViewProps> = ({
                   )}
                 </div>
 
-                <div className="relative z-10 flex flex-col sm:flex-row gap-4">
-                  <button onClick={() => setLandingResult(null)} className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition border border-white/10">
-                    Reset Values
+                <div className="relative z-10 flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <button onClick={() => setLandingResult(null)} className="flex-1 py-3 sm:py-4 bg-white/10 hover:bg-white/20 rounded-xl sm:rounded-2xl font-black text-[10px] uppercase tracking-widest transition border border-white/10">
+                    Reset
                   </button>
-                  <button onClick={() => exportService.toPDF(landingResult)} className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2 border border-white/10">
-                    <FileDown size={16}/> PDF Report
+                  <button onClick={() => exportService.toPDF(landingResult)} className="flex-1 py-3 sm:py-4 bg-white/10 hover:bg-white/20 rounded-xl sm:rounded-2xl font-black text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2 border border-white/10">
+                    <FileDown size={16}/> PDF
                   </button>
-                  <button onClick={saveLandingCalc} disabled={actionLoading || isStale} className="flex-[2] py-4 bg-blue-600 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-blue-500 transition shadow-2xl shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <button onClick={saveLandingCalc} disabled={actionLoading || isStale} className="flex-[2] py-4 bg-blue-600 rounded-xl sm:rounded-2xl font-black text-base sm:text-lg flex items-center justify-center gap-3 hover:bg-blue-500 transition shadow-2xl shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
                     {actionLoading ? <Loader2 className="animate-spin" size={24}/> : user ? <><CheckCircle2 size={24}/> Cloud Sync</> : <><Plus size={24}/> Secure Data</>}
                   </button>
                 </div>
@@ -318,23 +319,24 @@ const LandingView: React.FC<LandingViewProps> = ({
       </main>
 
       <footer className="max-w-7xl mx-auto w-full px-6 py-12 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-8 z-10 animate-in fade-in duration-1000">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 items-center md:items-start text-center md:text-left">
           <BrandLogo className="h-8 w-8" textClassName="text-xl" />
-          <p className="text-slate-400 text-xs font-bold">The Gold Standard for Submeter Management.</p>
+          <p className="text-slate-400 text-[10px] sm:text-xs font-bold">The Gold Standard for Submeter Management.</p>
         </div>
         
-        <a href="https://www.facebook.com/shemz.rhiew" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 bg-white px-6 py-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 hover:border-blue-400 transition-all duration-300 group">
-          <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-            <Facebook size={24} />
+        <a href="https://www.facebook.com/shemz.rhiew" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 bg-white px-5 sm:px-6 py-3 sm:py-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 hover:border-blue-400 transition-all duration-300 group max-w-full overflow-hidden">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-50 text-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+            {/* Fix: removed sm:size prop and used responsive tailwind classes */}
+            <Facebook className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-blue-500 transition">Contact Developer</p>
-            <p className="text-sm font-black text-slate-900">Inquiries & Suggestions</p>
+          <div className="overflow-hidden">
+            <p className="text-[8px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-blue-500 transition truncate">Contact Developer</p>
+            <p className="text-xs sm:text-sm font-black text-slate-900 truncate">Inquiries & Suggestions</p>
           </div>
-          <ExternalLink size={14} className="text-slate-300 group-hover:text-blue-500" />
+          <ExternalLink size={14} className="text-slate-300 group-hover:text-blue-500 shrink-0" />
         </a>
 
-        <div className="text-slate-300 text-[10px] font-black uppercase tracking-widest">
+        <div className="text-slate-300 text-[8px] sm:text-[10px] font-black uppercase tracking-widest">
           © 2024 VoltShare System v2.0
         </div>
       </footer>
@@ -477,13 +479,14 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 relative overflow-hidden">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 relative overflow-hidden px-6">
         <EnergyField />
         <div className="relative">
-          <Loader2 className="animate-spin text-blue-600 mb-4" size={64} />
+          {/* Fix: removed sm:size prop and used responsive tailwind classes */}
+          <Loader2 className="animate-spin text-blue-600 mb-4 w-12 h-12 sm:w-16 sm:h-16" />
           <div className="absolute inset-0 blur-2xl bg-blue-400/20 rounded-full animate-pulse"></div>
         </div>
-        <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] animate-pulse">VoltShare Syncing</p>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] animate-pulse text-center">VoltShare Syncing</p>
       </div>
     );
   }
@@ -510,10 +513,6 @@ const App: React.FC = () => {
                 <span className="text-xs font-black">{globalUsage.toLocaleString()} Cycles</span>
               </div>
             </div>
-            <a href="https://www.facebook.com/shemz.rhiew" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-5 py-3 text-[10px] font-black text-slate-400 hover:text-blue-600 transition group border border-dashed border-slate-200 rounded-2xl">
-              <Facebook size={14} className="group-hover:text-blue-600" />
-              <span>Reach Developer</span>
-            </a>
           </div>
 
           <div className="pt-8 border-t border-slate-100">
@@ -526,7 +525,7 @@ const App: React.FC = () => {
         </aside>
       )}
 
-      <main className={`flex-1 ${user ? 'lg:ml-80' : ''} p-0 min-h-screen relative`}>
+      <main className={`flex-1 ${user ? 'lg:ml-80' : ''} p-0 min-h-screen relative overflow-x-hidden`}>
         {view === 'landing' ? (
           <LandingView 
             setView={setView}
@@ -550,23 +549,23 @@ const App: React.FC = () => {
         ) : (
           <>
             <EnergyField />
-            <div className="p-6 md:p-12 pb-24 lg:pb-12 z-10 relative">
+            <div className="p-4 sm:p-6 md:p-12 pb-24 lg:pb-12 z-10 relative">
               {view === 'signin' || view === 'signup' ? (
                 <AuthView type={view as any} handleAuth={handleAuth} actionLoading={actionLoading} setView={setView} />
               ) : (
-                <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
                    {view === 'dashboard' && (
                      <div className="space-y-8">
-                       <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                         <div>
-                           <h1 className="text-5xl font-black text-slate-900 tracking-tighter">Command <span className="text-blue-600">Center</span></h1>
-                           <p className="text-slate-500 font-medium">Hello, {user?.name}. Your rental network is healthy.</p>
+                       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+                         <div className="w-full sm:w-auto">
+                           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tighter">Command <span className="text-blue-600">Center</span></h1>
+                           <p className="text-slate-500 font-medium text-sm">Hello, {user?.name}.</p>
                          </div>
-                         <button onClick={() => setView('calculator')} className="px-8 py-4 bg-blue-600 text-white rounded-2xl font-black shadow-2xl shadow-blue-500/30 flex items-center gap-3 hover:-translate-y-1 transition active:scale-95">
-                           <Plus size={24} /> New Audit Trail
+                         <button onClick={() => setView('calculator')} className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white rounded-xl sm:rounded-2xl font-black shadow-2xl shadow-blue-500/30 flex items-center justify-center gap-3 hover:-translate-y-1 transition active:scale-95 text-sm sm:text-base">
+                           <Plus size={20} /> New Audit Trail
                          </button>
                        </header>
-                       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                           <StatCard title="Global Rank" value={`#${Math.floor(globalUsage/100)+1}`} icon={<Sparkles size={20} />} color="blue" />
                           <StatCard title="Properties" value={rentals.length} icon={<Home size={20} />} color="emerald" />
                           <StatCard title="Cycles Ran" value={bills.length} icon={<History size={20} />} color="amber" />
@@ -575,83 +574,91 @@ const App: React.FC = () => {
                      </div>
                    )}
                    {view === 'calculator' && (
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                          <div className="space-y-6">
-                            <h2 className="text-3xl font-black text-slate-900 tracking-tighter">Audit Logic <span className="text-blue-600">Input</span></h2>
-                            <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 glass space-y-8">
+                            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter">Audit Logic <span className="text-blue-600">Input</span></h2>
+                            <div className="bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] shadow-xl border border-slate-100 glass space-y-6 sm:space-y-8">
                                <div>
                                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Cluster Selection</label>
                                   <select value={selectedPropertyId} onChange={(e) => {
                                     setSelectedPropertyId(e.target.value);
                                     const p = rentals.find(x => x.id === e.target.value);
                                     if(p) setRooms(p.rooms.map(r => ({ id: r.id, name: r.name, kwh: '0' })));
-                                  }} className="w-full bg-slate-50 border-none px-5 py-4 rounded-2xl font-black text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20">
+                                  }} className="w-full bg-slate-50 border-none px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base">
                                      <option value="">Manual Entry</option>
                                      {rentals.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                                   </select>
                                </div>
-                               <div className="grid grid-cols-2 gap-6">
+                               <div className="grid grid-cols-2 gap-4 sm:gap-6">
                                   <div className="group">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block group-hover:text-blue-600 transition">Rate (₱)</label>
-                                    <input type="text" inputMode="decimal" value={rate} onChange={(e) => setRate(e.target.value)} className="w-full bg-slate-50 border-none px-5 py-4 rounded-2xl font-black text-blue-600 text-xl outline-none focus:ring-2 focus:ring-blue-500/20" />
+                                    <input type="text" inputMode="decimal" value={rate} onChange={(e) => setRate(e.target.value)} className="w-full bg-slate-50 border-none px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-blue-600 text-lg sm:text-xl outline-none focus:ring-2 focus:ring-blue-500/20" />
                                   </div>
                                   <div className="group">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block group-hover:text-blue-600 transition">Main Meter</label>
-                                    <input type="text" inputMode="decimal" value={mainKwh} onChange={(e) => setMainKwh(e.target.value)} className="w-full bg-slate-50 border-none px-5 py-4 rounded-2xl font-black text-slate-900 text-xl outline-none focus:ring-2 focus:ring-blue-500/20" />
+                                    <input type="text" inputMode="decimal" value={mainKwh} onChange={(e) => setMainKwh(e.target.value)} className="w-full bg-slate-50 border-none px-4 sm:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-black text-slate-900 text-lg sm:text-xl outline-none focus:ring-2 focus:ring-blue-500/20" />
                                   </div>
                                </div>
                             </div>
                             <div className="space-y-3">
                                {rooms.map(r => (
-                                 <div key={r.id} className="flex gap-4 items-center bg-white p-4 rounded-2xl border border-slate-100">
-                                    <span className="flex-1 font-black text-sm">{r.name}</span>
-                                    <input type="text" inputMode="decimal" value={r.kwh} onChange={(e) => setRooms(rooms.map(rm => rm.id === r.id ? {...rm, kwh: e.target.value} : rm))} className="w-24 bg-slate-50 border-none px-4 py-2 rounded-xl text-right font-black text-sm focus:ring-2 focus:ring-blue-500/20" />
+                                 <div key={r.id} className="flex gap-4 items-center bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-slate-100">
+                                    <span className="flex-1 font-black text-xs sm:text-sm truncate pr-2">{r.name}</span>
+                                    <input type="text" inputMode="decimal" value={r.kwh} onChange={(e) => setRooms(rooms.map(rm => rm.id === r.id ? {...rm, kwh: e.target.value} : rm))} className="w-20 sm:w-24 bg-slate-50 border-none px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-right font-black text-xs sm:text-sm focus:ring-2 focus:ring-blue-500/20" />
                                  </div>
                                ))}
                             </div>
-                            <button onClick={handleCalculate} className="w-full py-5 bg-blue-600 text-white rounded-[2rem] font-black text-xl shadow-2xl shadow-blue-500/30 hover:bg-blue-500 transition active:scale-95">Generate Audit Trail</button>
+                            <button onClick={handleCalculate} className="w-full py-4 sm:py-5 bg-blue-600 text-white rounded-xl sm:rounded-[2rem] font-black text-lg sm:text-xl shadow-2xl shadow-blue-500/30 hover:bg-blue-500 transition active:scale-95">Generate Audit Trail</button>
                          </div>
-                         <div>
+                         <div className="w-full overflow-hidden">
                             {tempCalculation ? (
-                               <div className="bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl space-y-10 animate-in zoom-in-95 duration-500">
-                                  <div className="flex justify-between items-end border-b border-white/10 pb-8">
-                                     <h3 className="text-4xl font-black tracking-tighter">{tempCalculation.month} {tempCalculation.year}</h3>
-                                     <button onClick={saveBill} disabled={actionLoading} className="px-8 py-3 bg-blue-600 rounded-xl font-black hover:bg-blue-500 transition shadow-xl shadow-blue-500/20">{actionLoading ? <Loader2 className="animate-spin" /> : 'Cloud Save'}</button>
+                               <div className="bg-slate-900 text-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] shadow-2xl space-y-6 sm:space-y-10 animate-in zoom-in-95 duration-500 w-full overflow-hidden">
+                                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b border-white/10 pb-6 sm:pb-8 gap-4">
+                                     <h3 className="text-2xl sm:text-4xl font-black tracking-tighter">{tempCalculation.month} {tempCalculation.year}</h3>
+                                     <button onClick={saveBill} disabled={actionLoading} className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 bg-blue-600 rounded-xl font-black hover:bg-blue-500 transition shadow-xl shadow-blue-500/20 text-xs sm:text-sm">{actionLoading ? <Loader2 className="animate-spin mx-auto" /> : 'Cloud Save'}</button>
                                   </div>
                                   <ComputationBreakdown bill={tempCalculation} />
                                </div>
                             ) : (
-                               <div className="h-full bg-white/50 border-2 border-dashed border-slate-200 rounded-[3rem] flex flex-col items-center justify-center p-20 text-center glass">
-                                  <Calculator size={80} className="text-slate-200 mb-6" />
-                                  <h4 className="text-xl font-black text-slate-400">Logic Lab Offline</h4>
-                                  <p className="text-slate-300 font-medium">Configure your inputs to generate a trail.</p>
+                               <div className="h-full min-h-[300px] bg-white/50 border-2 border-dashed border-slate-200 rounded-[2rem] sm:rounded-[3rem] flex flex-col items-center justify-center p-8 sm:p-20 text-center glass">
+                                  {/* Fix: removed sm:size prop and used responsive tailwind classes */}
+                                  <Calculator className="text-slate-200 mb-6 w-[60px] h-[60px] sm:w-[80px] sm:h-[80px]" />
+                                  <h4 className="text-lg sm:text-xl font-black text-slate-400">Logic Lab Offline</h4>
+                                  <p className="text-slate-300 font-medium text-sm sm:text-base">Configure your inputs to generate a trail.</p>
                                </div>
                             )}
                          </div>
                       </div>
                    )}
                    {view === 'history' && (
-                     <div className="grid grid-cols-1 gap-4">
-                        {bills.map(b => (
-                          <div key={b.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-xl transition duration-500 group glass">
-                             <div className="flex items-center gap-6">
-                                <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-2xl flex flex-col items-center justify-center group-hover:bg-blue-600 group-hover:border-blue-500 transition-colors duration-500">
-                                   <span className="text-blue-600 font-black text-sm group-hover:text-white uppercase">{b.month.substring(0,3)}</span>
-                                   <span className="text-slate-400 text-[10px] font-black group-hover:text-blue-100">{b.year}</span>
+                     <div className="grid grid-cols-1 gap-4 sm:gap-6">
+                        {bills.length === 0 ? (
+                           <div className="text-center py-20 bg-white rounded-[2rem] border border-slate-100 text-slate-400">
+                             <History size={48} className="mx-auto mb-4 opacity-20" />
+                             <p className="font-black uppercase tracking-widest text-xs">No records found</p>
+                           </div>
+                        ) : bills.map(b => (
+                          <div key={b.id} className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[2rem] border border-slate-100 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between hover:shadow-xl transition duration-500 group glass gap-4">
+                             <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
+                                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-slate-50 border border-slate-100 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center group-hover:bg-blue-600 group-hover:border-blue-500 transition-colors duration-500 shrink-0">
+                                   <span className="text-blue-600 font-black text-[10px] sm:text-sm group-hover:text-white uppercase">{b.month.substring(0,3)}</span>
+                                   <span className="text-slate-400 text-[8px] sm:text-[10px] font-black group-hover:text-blue-100">{b.year}</span>
                                 </div>
-                                <div>
-                                   <p className="text-xl font-black text-slate-900 tracking-tighter">{b.propertyName || 'Custom Cluster'}</p>
-                                   <div className="flex gap-3 mt-1">
+                                <div className="overflow-hidden">
+                                   <p className="text-lg sm:text-xl font-black text-slate-900 tracking-tighter truncate">{b.propertyName || 'Custom Cluster'}</p>
+                                   <div className="flex gap-2 sm:gap-3 mt-1 flex-wrap">
                                       <span className="px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[8px] font-black uppercase tracking-widest">{b.rooms.length} Units</span>
                                       <span className="px-2 py-0.5 bg-amber-50 text-amber-600 rounded-md text-[8px] font-black uppercase tracking-widest">P{b.ratePerKwh}/kWh</span>
                                    </div>
                                 </div>
                              </div>
-                             <div className="text-right">
-                                <p className="text-2xl font-black text-slate-900 tracking-tighter">₱{b.rooms.reduce((s,r) => s+r.billAmount,0).toLocaleString()}</p>
-                                <div className="flex gap-2 justify-end mt-1">
-                                   <button onClick={() => exportService.toPDF(b)} className="text-blue-500 hover:text-blue-700 transition"><Download size={18}/></button>
-                                   <button onClick={() => storageService.deleteBill(b.id).then(() => storageService.getBills(user!.id).then(setBills))} className="text-slate-300 hover:text-red-500 transition"><Trash2 size={18}/></button>
+                             <div className="text-left sm:text-right flex flex-row sm:flex-col justify-between items-center sm:items-end w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-50">
+                                <div>
+                                  <p className="text-xl sm:text-2xl font-black text-slate-900 tracking-tighter">₱{b.rooms.reduce((s,r) => s+r.billAmount,0).toLocaleString()}</p>
+                                </div>
+                                <div className="flex gap-3 justify-end mt-1 sm:mt-1">
+                                   <button onClick={() => exportService.toPDF(b)} className="text-blue-500 hover:text-blue-700 transition p-1"><Download size={20}/></button>
+                                   <button onClick={() => { if(confirm('Delete this record?')) storageService.deleteBill(b.id).then(() => storageService.getBills(user!.id).then(setBills)); }} className="text-slate-300 hover:text-red-500 transition p-1"><Trash2 size={20}/></button>
                                 </div>
                              </div>
                           </div>
@@ -666,12 +673,12 @@ const App: React.FC = () => {
       </main>
 
       {user && (
-        <nav className="lg:hidden fixed bottom-6 left-6 right-6 bg-white/80 border border-white/50 px-6 py-4 flex justify-between items-center z-40 rounded-[2.5rem] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.1)] glass">
-          <button onClick={() => setView('dashboard')} className={`flex flex-col items-center gap-1 ${view === 'dashboard' ? 'text-blue-600' : 'text-slate-400'}`}><LayoutDashboard size={24} /></button>
-          <button onClick={() => setView('rentals')} className={`flex flex-col items-center gap-1 ${view === 'rentals' ? 'text-blue-600' : 'text-slate-400'}`}><Building2 size={24} /></button>
-          <button onClick={() => setView('calculator')} className={`flex flex-col items-center gap-1 ${view === 'calculator' ? 'text-blue-600' : 'text-slate-400'}`}><div className="w-12 h-12 bg-blue-600 -mt-8 rounded-full flex items-center justify-center text-white shadow-xl shadow-blue-500/40"><Plus size={24}/></div></button>
-          <button onClick={() => setView('history')} className={`flex flex-col items-center gap-1 ${view === 'history' ? 'text-blue-600' : 'text-slate-400'}`}><History size={24} /></button>
-          <button onClick={handleLogout} className="flex flex-col items-center gap-1 text-slate-400"><LogOut size={24} /></button>
+        <nav className="lg:hidden fixed bottom-6 left-6 right-6 bg-white/80 border border-white/50 px-6 py-3 flex justify-between items-center z-40 rounded-[2rem] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.2)] backdrop-blur-md">
+          <button onClick={() => setView('dashboard')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'dashboard' ? 'text-blue-600' : 'text-slate-400'}`}><LayoutDashboard size={24} /></button>
+          <button onClick={() => setView('rentals')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'rentals' ? 'text-blue-600' : 'text-slate-400'}`}><Building2 size={24} /></button>
+          <button onClick={() => setView('calculator')} className={`flex flex-col items-center gap-1 transition-transform active:scale-95`}><div className="w-12 h-12 bg-blue-600 -mt-10 rounded-full flex items-center justify-center text-white shadow-xl shadow-blue-500/40 border-4 border-white"><Plus size={28}/></div></button>
+          <button onClick={() => setView('history')} className={`flex flex-col items-center gap-1 transition-colors ${view === 'history' ? 'text-blue-600' : 'text-slate-400'}`}><History size={24} /></button>
+          <button onClick={handleLogout} className="flex flex-col items-center gap-1 text-slate-400 active:text-red-500"><LogOut size={24} /></button>
         </nav>
       )}
     </div>
@@ -679,33 +686,33 @@ const App: React.FC = () => {
 };
 
 const StatCard: React.FC<{ title: string, value: any, icon: any, color: string }> = ({ title, value, icon, color }) => (
-  <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-2xl hover:border-blue-100 transition-all duration-500 group glass">
-    <div className={`w-12 h-12 bg-${color}-50 text-${color}-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>{icon}</div>
-    <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">{title}</p>
-    <p className="text-3xl font-black text-slate-900 tracking-tighter">{value}</p>
+  <div className="bg-white p-6 sm:p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl hover:border-blue-100 transition-all duration-500 group glass w-full overflow-hidden">
+    <div className={`w-10 h-10 sm:w-12 sm:h-12 bg-${color}-50 text-${color}-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform shrink-0`}>{icon}</div>
+    <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1 truncate">{title}</p>
+    <p className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tighter break-all">{value}</p>
   </div>
 );
 
 const AuthView: React.FC<{ type: 'signin' | 'signup', handleAuth: any, actionLoading: boolean, setView: any }> = ({ type, handleAuth, actionLoading, setView }) => (
-  <div className="min-h-[80vh] flex items-center justify-center p-6">
-    <div className="bg-white/80 p-12 rounded-[3rem] shadow-2xl w-full max-w-md space-y-10 border border-white/50 glass animate-in zoom-in-95 duration-500">
+  <div className="min-h-[70vh] flex items-center justify-center p-4">
+    <div className="bg-white/80 p-8 sm:p-12 rounded-[2.5rem] sm:rounded-[3rem] shadow-2xl w-full max-w-md space-y-8 sm:space-y-10 border border-white/50 glass animate-in zoom-in-95 duration-500">
       <div className="text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 mb-6 animate-bounce-slow">
+        <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 mb-6 animate-bounce-slow">
            <BrandLogo hideText />
         </div>
-        <h2 className="text-4xl font-black text-slate-900 tracking-tighter">{type === 'signin' ? 'Welcome Back' : 'Create Cluster'}</h2>
-        <p className="text-slate-500 mt-2 font-medium">Control your grid from anywhere.</p>
+        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter">{type === 'signin' ? 'Welcome Back' : 'Create Cluster'}</h2>
+        <p className="text-slate-500 mt-2 font-medium text-sm">Control your grid from anywhere.</p>
       </div>
-      <form onSubmit={(e) => handleAuth(e, type)} className="space-y-6">
+      <form onSubmit={(e) => handleAuth(e, type)} className="space-y-4 sm:space-y-6">
         {type === 'signup' && (
-          <div className="group"><label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-blue-600 transition">Full Identity</label><input name="fullname" type="text" required className="w-full px-5 py-4 rounded-2xl bg-slate-50/50 border-none outline-none focus:ring-2 focus:ring-blue-500/20 font-black text-slate-700" placeholder="Juan Dela Cruz" /></div>
+          <div className="group"><label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-blue-600 transition">Full Identity</label><input name="fullname" type="text" required className="w-full px-4 py-3 sm:px-5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50/50 border-none outline-none focus:ring-2 focus:ring-blue-500/20 font-black text-slate-700 text-sm sm:text-base" placeholder="Juan Dela Cruz" /></div>
         )}
-        <div className="group"><label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-blue-600 transition">Access Mail</label><input name="email" type="email" required className="w-full px-5 py-4 rounded-2xl bg-slate-50/50 border-none outline-none focus:ring-2 focus:ring-blue-500/20 font-black text-slate-700" placeholder="admin@voltshare.com" /></div>
-        <div className="group"><label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-blue-600 transition">Security Key</label><input name="password" type="password" required className="w-full px-5 py-4 rounded-2xl bg-slate-50/50 border-none outline-none focus:ring-2 focus:ring-blue-500/20 font-black text-slate-700" placeholder="••••••••" /></div>
-        <button disabled={actionLoading} className="w-full py-5 bg-blue-600 text-white rounded-[1.5rem] font-black text-xl hover:bg-blue-700 transition shadow-2xl shadow-blue-500/20 flex items-center justify-center active:scale-95">{actionLoading ? <Loader2 className="animate-spin mr-2" /> : (type === 'signin' ? 'Authorize' : 'Initialize')}</button>
+        <div className="group"><label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-blue-600 transition">Access Mail</label><input name="email" type="email" required className="w-full px-4 py-3 sm:px-5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50/50 border-none outline-none focus:ring-2 focus:ring-blue-500/20 font-black text-slate-700 text-sm sm:text-base" placeholder="admin@voltshare.com" /></div>
+        <div className="group"><label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-blue-600 transition">Security Key</label><input name="password" type="password" required className="w-full px-4 py-3 sm:px-5 sm:py-4 rounded-xl sm:rounded-2xl bg-slate-50/50 border-none outline-none focus:ring-2 focus:ring-blue-500/20 font-black text-slate-700 text-sm sm:text-base" placeholder="••••••••" /></div>
+        <button disabled={actionLoading} className="w-full py-4 sm:py-5 bg-blue-600 text-white rounded-xl sm:rounded-[1.5rem] font-black text-lg sm:text-xl hover:bg-blue-700 transition shadow-2xl shadow-blue-500/20 flex items-center justify-center active:scale-95 mt-2">{actionLoading ? <Loader2 className="animate-spin mr-2" /> : (type === 'signin' ? 'Authorize' : 'Initialize')}</button>
       </form>
       <div className="text-center space-y-4">
-        <button onClick={() => setView(type === 'signin' ? 'signup' : 'signin')} className="text-sm text-blue-600 font-black hover:underline uppercase tracking-widest">{type === 'signin' ? "No ID? Join Network" : "Existing Node? Connect"}</button>
+        <button onClick={() => setView(type === 'signin' ? 'signup' : 'signin')} className="text-[10px] sm:text-xs text-blue-600 font-black hover:underline uppercase tracking-widest">{type === 'signin' ? "No ID? Join Network" : "Existing Node? Connect"}</button>
         <button onClick={() => setView('landing')} className="block w-full text-[10px] text-slate-400 font-black hover:text-slate-600 transition uppercase tracking-widest">← Return to Lobby</button>
       </div>
     </div>
