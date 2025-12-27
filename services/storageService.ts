@@ -8,7 +8,11 @@ import {
   query, 
   orderBy, 
   where,
-  updateDoc
+  updateDoc,
+  onSnapshot,
+  increment,
+  setDoc,
+  getDoc
 } from "firebase/firestore";
 import { 
   signInWithEmailAndPassword, 
@@ -22,6 +26,28 @@ import { BillRecord, User, RentalProperty } from '../types';
 
 export const storageService = {
   isReady: () => isFirebaseReady,
+
+  // --- Global Stats ---
+  incrementUsage: async () => {
+    if (!isFirebaseReady) return;
+    const statsRef = doc(db, "stats", "global");
+    try {
+      await updateDoc(statsRef, { totalCalculations: increment(1) });
+    } catch (e) {
+      // Initialize if document doesn't exist
+      await setDoc(statsRef, { totalCalculations: 1 }, { merge: true });
+    }
+  },
+
+  onUsageUpdate: (callback: (count: number) => void) => {
+    if (!isFirebaseReady) return () => {};
+    const statsRef = doc(db, "stats", "global");
+    return onSnapshot(statsRef, (doc) => {
+      if (doc.exists()) {
+        callback(doc.data().totalCalculations || 0);
+      }
+    });
+  },
 
   // --- Landlord Auth Operations ---
   signIn: async (email: string, pass: string): Promise<User> => {
