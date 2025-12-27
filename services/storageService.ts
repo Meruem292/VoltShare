@@ -17,12 +17,15 @@ import {
   onAuthStateChanged,
   updateProfile
 } from "firebase/auth";
-import { db, auth } from "../firebase";
+import { db, auth, isFirebaseReady } from "../firebase";
 import { BillRecord, User, RentalProperty } from '../types';
 
 export const storageService = {
+  isReady: () => isFirebaseReady,
+
   // --- Landlord Auth Operations ---
   signIn: async (email: string, pass: string): Promise<User> => {
+    if (!isFirebaseReady) throw new Error("Firebase not configured");
     const cred = await signInWithEmailAndPassword(auth, email, pass);
     return {
       id: cred.user.uid,
@@ -32,6 +35,7 @@ export const storageService = {
   },
 
   signUp: async (email: string, pass: string, name: string): Promise<User> => {
+    if (!isFirebaseReady) throw new Error("Firebase not configured");
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(cred.user, { displayName: name });
     return {
@@ -42,10 +46,15 @@ export const storageService = {
   },
 
   logout: async () => {
+    if (!isFirebaseReady) return;
     await signOut(auth);
   },
 
   onAuthUpdate: (callback: (user: User | null) => void) => {
+    if (!isFirebaseReady) {
+      callback(null);
+      return () => {};
+    }
     return onAuthStateChanged(auth, (user) => {
       if (user) {
         callback({
@@ -61,6 +70,7 @@ export const storageService = {
 
   // --- Billing Operations ---
   saveBill: async (bill: BillRecord, userId: string): Promise<string> => {
+    if (!isFirebaseReady) throw new Error("Firebase not configured");
     const docRef = await addDoc(collection(db, "bills"), {
       ...bill,
       userId,
@@ -70,6 +80,7 @@ export const storageService = {
   },
 
   getBills: async (userId: string): Promise<BillRecord[]> => {
+    if (!isFirebaseReady) return [];
     const billsCol = collection(db, "bills");
     const q = query(
       billsCol, 
@@ -84,11 +95,13 @@ export const storageService = {
   },
 
   deleteBill: async (id: string): Promise<void> => {
+    if (!isFirebaseReady) return;
     await deleteDoc(doc(db, "bills", id));
   },
 
-  // --- Rental Property (Clustering) Operations ---
+  // --- Rental Property Operations ---
   getRentals: async (userId: string): Promise<RentalProperty[]> => {
+    if (!isFirebaseReady) return [];
     const rentalsCol = collection(db, "rentals");
     const q = query(
       rentalsCol,
@@ -103,16 +116,19 @@ export const storageService = {
   },
 
   saveRental: async (rental: Omit<RentalProperty, 'id'>): Promise<string> => {
+    if (!isFirebaseReady) throw new Error("Firebase not configured");
     const docRef = await addDoc(collection(db, "rentals"), rental);
     return docRef.id;
   },
 
   updateRental: async (id: string, updates: Partial<RentalProperty>): Promise<void> => {
+    if (!isFirebaseReady) return;
     const docRef = doc(db, "rentals", id);
     await updateDoc(docRef, updates);
   },
 
   deleteRental: async (id: string): Promise<void> => {
+    if (!isFirebaseReady) return;
     await deleteDoc(doc(db, "rentals", id));
   }
 };

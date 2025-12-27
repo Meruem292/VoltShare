@@ -22,12 +22,15 @@ import {
   ChevronDown,
   ChevronUp,
   Download,
-  FileDown
+  FileDown,
+  AlertTriangle,
+  ExternalLink
 } from 'lucide-react';
 import { AppView, User, RoomInput, BillRecord, RentalProperty } from './types';
 import { storageService } from './services/storageService';
 import { calculateBill } from './logic/billCalculator';
 import { exportService } from './services/exportService';
+import { isFirebaseReady, firebaseConfig } from './firebase';
 import { 
   PieChart, 
   Pie, 
@@ -37,6 +40,45 @@ import {
 } from 'recharts';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+
+// Error Screen for missing environment variables
+const ConfigErrorView: React.FC = () => (
+  <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
+    <div className="bg-white max-w-lg w-full rounded-[2rem] shadow-2xl p-10 border border-slate-200">
+      <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+        <AlertTriangle size={32} />
+      </div>
+      <h2 className="text-3xl font-black text-slate-900 text-center mb-2">Configuration Required</h2>
+      <p className="text-slate-500 text-center mb-8">VoltShare needs your Firebase credentials to enable cloud sync, auth, and history tracking.</p>
+      
+      <div className="bg-slate-50 rounded-2xl p-6 mb-8 space-y-4">
+        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Environment Variables Missing:</h4>
+        <div className="space-y-2">
+          {!firebaseConfig.apiKey && <code className="block text-xs bg-white border p-2 rounded-lg text-red-500">FIREBASE_API_KEY</code>}
+          {!firebaseConfig.projectId && <code className="block text-xs bg-white border p-2 rounded-lg text-red-500">FIREBASE_PROJECT_ID</code>}
+          <p className="text-[10px] text-slate-400 mt-4 italic">Note: If using Vercel/Vite, prefix them with VITE_ (e.g. VITE_FIREBASE_API_KEY)</p>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <a 
+          href="https://console.firebase.google.com/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-700 transition"
+        >
+          Firebase Console <ExternalLink size={18}/>
+        </a>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="w-full py-4 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition"
+        >
+          I've added them, Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
 const ComputationBreakdown: React.FC<{ bill: BillRecord }> = ({ bill }) => (
   <div className="bg-slate-800 rounded-2xl p-4 mt-4 space-y-4 text-xs">
@@ -248,6 +290,10 @@ const AuthView: React.FC<{ type: 'signin' | 'signup', handleAuth: any, actionLoa
 );
 
 const App: React.FC = () => {
+  if (!isFirebaseReady) {
+    return <ConfigErrorView />;
+  }
+
   const [view, setView] = useState<AppView>('landing');
   const [user, setUser] = useState<User | null>(null);
   const [bills, setBills] = useState<BillRecord[]>([]);
