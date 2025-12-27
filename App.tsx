@@ -24,7 +24,9 @@ import {
   Download,
   FileDown,
   AlertTriangle,
-  ExternalLink
+  ExternalLink,
+  Facebook,
+  MessageSquare
 } from 'lucide-react';
 import { AppView, User, RoomInput, BillRecord, RentalProperty } from './types';
 import { storageService } from './services/storageService';
@@ -277,6 +279,16 @@ const LandingView: React.FC<LandingViewProps> = ({
         </div>
       </div>
     </main>
+
+    <footer className="max-w-7xl mx-auto w-full px-6 py-12 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div className="text-slate-400 text-sm font-medium">© 2024 VoltShare. Fair Utility Distribution.</div>
+      <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-2xl shadow-sm border border-slate-100 animate-in fade-in slide-in-from-bottom-2">
+        <Facebook size={18} className="text-blue-600" />
+        <span className="text-sm text-slate-600">
+          Reach me at <a href="https://www.facebook.com/shemz.rhiew" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold hover:underline">Facebook</a> for inquiries and suggestions.
+        </span>
+      </div>
+    </footer>
   </div>
 );
 
@@ -554,6 +566,14 @@ const App: React.FC = () => {
             <button onClick={() => setView('calculator')} className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition ${view === 'calculator' ? 'bg-blue-50 text-blue-600' : 'text-slate-500 hover:bg-slate-50'}`}><Calculator size={20} /> Bill Calculator</button>
             <button onClick={() => setView('history')} className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition ${view === 'history' ? 'bg-blue-50 text-blue-600' : 'text-slate-500 hover:bg-slate-50'}`}><History size={20} /> Records History</button>
           </nav>
+          
+          <div className="mt-4 pt-4 border-t border-slate-100 mb-6">
+            <a href="https://www.facebook.com/shemz.rhiew" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-4 py-2 text-xs font-bold text-slate-400 hover:text-blue-600 transition group">
+              <Facebook size={14} className="group-hover:text-blue-600" />
+              <span>Inquiries & Suggestions</span>
+            </a>
+          </div>
+
           <div className="pt-8 border-t border-slate-100">
             <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl mb-4">
                <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center"><UserIcon size={20} /></div>
