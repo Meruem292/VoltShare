@@ -27,7 +27,8 @@ import {
   ExternalLink,
   Facebook,
   Globe,
-  Sparkles
+  Sparkles,
+  RefreshCw
 } from 'lucide-react';
 import { AppView, User, RoomInput, BillRecord, RentalProperty } from './types';
 import { storageService } from './services/storageService';
@@ -144,7 +145,6 @@ interface LandingViewProps {
   landingRooms: RoomInput[];
   setLandingRooms: (v: RoomInput[]) => void;
   landingResult: BillRecord | null;
-  // Added setLandingResult to LandingViewProps fix
   setLandingResult: (v: BillRecord | null) => void;
   showBreakdown: boolean;
   setShowBreakdown: (v: boolean) => void;
@@ -153,12 +153,13 @@ interface LandingViewProps {
   actionLoading: boolean;
   user: User | null;
   globalUsage: number;
+  isStale: boolean;
 }
 
 const LandingView: React.FC<LandingViewProps> = ({ 
   setView, landingMainKwh, setLandingMainKwh, rate, setRate, 
   landingRooms, setLandingRooms, landingResult, setLandingResult, showBreakdown, 
-  setShowBreakdown, saveLandingCalc, handleLandingCalculate, actionLoading, user, globalUsage 
+  setShowBreakdown, saveLandingCalc, handleLandingCalculate, actionLoading, user, globalUsage, isStale
 }) => (
   <div className="min-h-screen flex flex-col relative">
     <EnergyField />
@@ -242,16 +243,25 @@ const LandingView: React.FC<LandingViewProps> = ({
             </div>
           </div>
 
-          {!landingResult ? (
+          {(!landingResult || isStale) && (
             <button 
               onClick={handleLandingCalculate} 
               disabled={actionLoading}
-              className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black text-xl shadow-2xl shadow-blue-500/30 hover:bg-blue-500 transition active:scale-95 flex items-center justify-center gap-3"
+              className={`w-full py-6 rounded-[2rem] font-black text-xl shadow-2xl transition active:scale-95 flex items-center justify-center gap-3 ${isStale ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/30' : 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/30'}`}
             >
-              {actionLoading ? <Loader2 className="animate-spin" size={24}/> : <><Zap size={24}/> Execute Distribution Logic</>}
+              {actionLoading ? <Loader2 className="animate-spin" size={24}/> : isStale ? <><RefreshCw size={24} className="animate-spin-slow"/> Update Audit Trail</> : <><Zap size={24}/> Execute Distribution Logic</>}
             </button>
-          ) : (
-            <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white space-y-8 animate-in zoom-in-95 duration-500 shadow-2xl relative overflow-hidden">
+          )}
+
+          {landingResult && (
+            <div className={`bg-slate-900 rounded-[2.5rem] p-8 text-white space-y-8 animate-in zoom-in-95 duration-500 shadow-2xl relative overflow-hidden transition-all duration-500 ${isStale ? 'opacity-40 grayscale-[0.5] scale-[0.98]' : 'opacity-100'}`}>
+              {isStale && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-900/40 backdrop-blur-[2px]">
+                   <div className="bg-amber-500 text-slate-900 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest shadow-2xl animate-bounce">
+                     Inputs Modified - Recompute Required
+                   </div>
+                </div>
+              )}
               <div className="absolute top-0 right-0 p-8 opacity-5"><Zap size={100} /></div>
               <div className="relative z-10 flex justify-between items-start">
                 <div>
@@ -294,7 +304,7 @@ const LandingView: React.FC<LandingViewProps> = ({
                 <button onClick={() => exportService.toPDF(landingResult)} className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2 border border-white/10">
                   <FileDown size={16}/> PDF Report
                 </button>
-                <button onClick={saveLandingCalc} disabled={actionLoading} className="flex-[2] py-4 bg-blue-600 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-blue-500 transition shadow-2xl shadow-blue-600/20 active:scale-95">
+                <button onClick={saveLandingCalc} disabled={actionLoading || isStale} className="flex-[2] py-4 bg-blue-600 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-blue-500 transition shadow-2xl shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
                   {actionLoading ? <Loader2 className="animate-spin" size={24}/> : user ? <><CheckCircle2 size={24}/> Cloud Sync</> : <><Plus size={24}/> Secure Data</>}
                 </button>
               </div>
@@ -351,6 +361,8 @@ const App: React.FC = () => {
     { id: 'l2', name: 'Unit 102', kwh: '100' },
   ]);
   const [landingResult, setLandingResult] = useState<BillRecord | null>(null);
+  const [isStale, setIsStale] = useState<boolean>(false);
+
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
   const [mainKwh, setMainKwh] = useState<string>('0');
   const [rooms, setRooms] = useState<RoomInput[]>([]);
@@ -363,6 +375,13 @@ const App: React.FC = () => {
     const unsub = storageService.onUsageUpdate((count) => setGlobalUsage(count));
     return () => unsub();
   }, []);
+
+  // Sync Staleness
+  useEffect(() => {
+    if (landingResult) {
+      setIsStale(true);
+    }
+  }, [landingMainKwh, rate, landingRooms]);
 
   // Auth & Data fetching
   useEffect(() => {
@@ -390,6 +409,7 @@ const App: React.FC = () => {
     await new Promise(r => setTimeout(r, 800));
     const result = calculateBill(landingMainKwh, rate, landingRooms, month, year);
     setLandingResult(result);
+    setIsStale(false);
     await storageService.incrementUsage();
     setActionLoading(false);
   };
@@ -415,6 +435,7 @@ const App: React.FC = () => {
 
   const saveLandingCalc = async () => {
     if (!user) { setView('signup'); return; }
+    if (isStale) return;
     setActionLoading(true);
     try {
       await storageService.saveBill(landingResult!, user.id);
@@ -520,6 +541,7 @@ const App: React.FC = () => {
             actionLoading={actionLoading}
             user={user}
             globalUsage={globalUsage}
+            isStale={isStale}
           />
         ) : (
           <>
