@@ -41,6 +41,20 @@ import {
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
+// Logo Component for consistency
+const BrandLogo: React.FC<{ className?: string, textClassName?: string }> = ({ className = "w-10 h-10", textClassName = "text-2xl" }) => (
+  <div className="flex items-center gap-3">
+    <img src="logo.png" alt="VoltShare Logo" className={`${className} object-contain`} onError={(e) => {
+      // Fallback if image isn't found yet
+      (e.target as HTMLImageElement).style.display = 'none';
+      (e.target as HTMLImageElement).parentElement?.insertAdjacentHTML('afterbegin', '<div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap fill-current"><path d="M4 14.5L13 3V10H20L11 21.5V14H4Z"/></svg></div>');
+    }} />
+    <span className={`font-bold ${textClassName} tracking-tight`}>
+      <span className="text-blue-600">Volt</span><span className="text-slate-400">Share</span>
+    </span>
+  </div>
+);
+
 // Error Screen for missing environment variables
 const ConfigErrorView: React.FC = () => (
   <div className="min-h-screen bg-slate-100 flex items-center justify-center p-6">
@@ -139,10 +153,7 @@ const LandingView: React.FC<LandingViewProps> = ({
 }) => (
   <div className="min-h-screen flex flex-col animate-in fade-in duration-500 bg-slate-50">
     <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full">
-      <div className="flex items-center gap-2 text-blue-600 font-bold text-2xl">
-        <Zap className="fill-current" />
-        <span>VoltShare</span>
-      </div>
+      <BrandLogo />
       <div className="flex gap-4">
         <button onClick={() => setView('signin')} className="px-4 py-2 text-slate-600 hover:text-blue-600 font-medium transition">Sign In</button>
         <button onClick={() => setView('signup')} className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg shadow-blue-200">Landlord Signup</button>
@@ -168,7 +179,9 @@ const LandingView: React.FC<LandingViewProps> = ({
       </div>
 
       <div className="flex-1 w-full max-w-2xl bg-white p-8 rounded-[2rem] shadow-2xl border border-slate-100 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-5"><Zap size={160} className="text-blue-600" /></div>
+        <div className="absolute top-0 right-0 p-8 opacity-5">
+           <img src="logo.png" className="w-40 h-40 object-contain grayscale opacity-20" alt="" />
+        </div>
         
         <div className="relative z-10 space-y-8">
           <div>
@@ -271,7 +284,9 @@ const AuthView: React.FC<{ type: 'signin' | 'signup', handleAuth: any, actionLoa
   <div className="min-h-screen flex items-center justify-center p-6 bg-slate-100 animate-in zoom-in-95 duration-300">
     <div className="bg-white p-10 rounded-3xl shadow-xl w-full max-w-md space-y-8 border border-slate-200">
       <div className="text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl mb-4"><Building2 size={32} /></div>
+        <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
+           <img src="logo.png" className="w-full h-full object-contain" alt="VoltShare Logo" />
+        </div>
         <h2 className="text-3xl font-bold text-slate-900">{type === 'signin' ? 'Landlord Login' : 'Landlord Portal'}</h2>
         <p className="text-slate-500 mt-2">Manage your rental clusters and utility bills</p>
       </div>
@@ -530,7 +545,9 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-50 flex">
       {user && (
         <aside className="hidden lg:flex w-72 flex-col bg-white border-r border-slate-200 p-8 fixed h-full z-30">
-          <div className="flex items-center gap-2 text-blue-600 font-bold text-2xl mb-12 cursor-pointer" onClick={() => setView('dashboard')}><Zap className="fill-current" /><span>VoltShare</span></div>
+          <div className="mb-12 cursor-pointer" onClick={() => setView('dashboard')}>
+            <BrandLogo />
+          </div>
           <nav className="flex-1 space-y-2">
             <button onClick={() => setView('dashboard')} className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition ${view === 'dashboard' ? 'bg-blue-50 text-blue-600' : 'text-slate-500 hover:bg-slate-50'}`}><LayoutDashboard size={20} /> Overview</button>
             <button onClick={() => setView('rentals')} className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl font-bold transition ${view === 'rentals' ? 'bg-blue-50 text-blue-600' : 'text-slate-500 hover:bg-slate-50'}`}><Building2 size={20} /> My Properties</button>
