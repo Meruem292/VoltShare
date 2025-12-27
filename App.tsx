@@ -53,20 +53,13 @@ const BrandLogo: React.FC<{ className?: string, textClassName?: string, hideText
   <div className="flex items-center gap-3 group">
     <div className={`relative ${className} transition-all duration-500 group-hover:scale-110 group-hover:drop-shadow-[0_0_15px_rgba(37,99,235,0.4)]`}>
       <svg viewBox="0 0 100 100" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* Outer Circle Container */}
         <circle cx="50" cy="50" r="45" stroke="#2563eb" strokeWidth="6" />
         <circle cx="50" cy="50" r="38" stroke="#2563eb" strokeWidth="2" strokeDasharray="8 4" opacity="0.3" />
-        
-        {/* Directional Arrows (Cycle/Share Theme) */}
         <path d="M25 50 C 25 30, 40 25, 50 25 M75 50 C 75 70, 60 75, 50 75" stroke="#2563eb" strokeWidth="4" strokeLinecap="round" />
         <path d="M48 22 L52 25 L48 28" fill="#2563eb" />
         <path d="M52 72 L48 75 L52 78" fill="#2563eb" />
-
-        {/* House Icons */}
         <path d="M28 52 L32 48 L36 52 V58 H28 V52Z" fill="#2563eb" />
         <path d="M64 42 L68 38 L72 42 V48 H64 V42Z" fill="#2563eb" />
-        
-        {/* Central Lightning Bolt (Volt Theme) */}
         <path d="M52 35 L40 55 H50 L48 70 L60 50 H50 L52 35Z" fill="#2563eb" />
       </svg>
     </div>
@@ -151,9 +144,12 @@ interface LandingViewProps {
   landingRooms: RoomInput[];
   setLandingRooms: (v: RoomInput[]) => void;
   landingResult: BillRecord | null;
+  // Added setLandingResult to LandingViewProps fix
+  setLandingResult: (v: BillRecord | null) => void;
   showBreakdown: boolean;
   setShowBreakdown: (v: boolean) => void;
   saveLandingCalc: () => void;
+  handleLandingCalculate: () => void;
   actionLoading: boolean;
   user: User | null;
   globalUsage: number;
@@ -161,8 +157,8 @@ interface LandingViewProps {
 
 const LandingView: React.FC<LandingViewProps> = ({ 
   setView, landingMainKwh, setLandingMainKwh, rate, setRate, 
-  landingRooms, setLandingRooms, landingResult, showBreakdown, 
-  setShowBreakdown, saveLandingCalc, actionLoading, user, globalUsage 
+  landingRooms, setLandingRooms, landingResult, setLandingResult, showBreakdown, 
+  setShowBreakdown, saveLandingCalc, handleLandingCalculate, actionLoading, user, globalUsage 
 }) => (
   <div className="min-h-screen flex flex-col relative">
     <EnergyField />
@@ -213,15 +209,7 @@ const LandingView: React.FC<LandingViewProps> = ({
           <div className="flex justify-between items-end">
             <div>
               <h3 className="text-3xl font-black text-slate-900">Live Lab</h3>
-              <p className="text-slate-500 text-sm font-medium">Watch the math happen in real-time</p>
-            </div>
-            <div className="flex -space-x-3">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="w-10 h-10 rounded-full border-4 border-white bg-slate-200 overflow-hidden shadow-sm">
-                  <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="User" />
-                </div>
-              ))}
-              <div className="w-10 h-10 rounded-full border-4 border-white bg-blue-600 flex items-center justify-center text-[10px] font-black text-white shadow-sm">+99</div>
+              <p className="text-slate-500 text-sm font-medium">Configure and execute distribution</p>
             </div>
           </div>
 
@@ -254,7 +242,15 @@ const LandingView: React.FC<LandingViewProps> = ({
             </div>
           </div>
 
-          {landingResult && (
+          {!landingResult ? (
+            <button 
+              onClick={handleLandingCalculate} 
+              disabled={actionLoading}
+              className="w-full py-6 bg-blue-600 text-white rounded-[2rem] font-black text-xl shadow-2xl shadow-blue-500/30 hover:bg-blue-500 transition active:scale-95 flex items-center justify-center gap-3"
+            >
+              {actionLoading ? <Loader2 className="animate-spin" size={24}/> : <><Zap size={24}/> Execute Distribution Logic</>}
+            </button>
+          ) : (
             <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white space-y-8 animate-in zoom-in-95 duration-500 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 p-8 opacity-5"><Zap size={100} /></div>
               <div className="relative z-10 flex justify-between items-start">
@@ -291,7 +287,10 @@ const LandingView: React.FC<LandingViewProps> = ({
                 )}
               </div>
 
-              <div className="relative z-10 flex gap-4">
+              <div className="relative z-10 flex flex-col sm:flex-row gap-4">
+                <button onClick={() => setLandingResult(null)} className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition border border-white/10">
+                  Reset Values
+                </button>
                 <button onClick={() => exportService.toPDF(landingResult)} className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2 border border-white/10">
                   <FileDown size={16}/> PDF Report
                 </button>
@@ -385,11 +384,15 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  // Sync Landing Calculation
-  useEffect(() => {
+  const handleLandingCalculate = async () => {
+    setActionLoading(true);
+    // Simulate complex calculation process
+    await new Promise(r => setTimeout(r, 800));
     const result = calculateBill(landingMainKwh, rate, landingRooms, month, year);
     setLandingResult(result);
-  }, [landingMainKwh, rate, landingRooms]);
+    await storageService.incrementUsage();
+    setActionLoading(false);
+  };
 
   const handleAuth = async (e: React.FormEvent, type: 'signin' | 'signup') => {
     e.preventDefault();
@@ -415,7 +418,6 @@ const App: React.FC = () => {
     setActionLoading(true);
     try {
       await storageService.saveBill(landingResult!, user.id);
-      await storageService.incrementUsage();
       setBills(await storageService.getBills(user.id));
       setView('history');
     } catch (e: any) { alert(e.message); }
@@ -510,9 +512,11 @@ const App: React.FC = () => {
             landingRooms={landingRooms}
             setLandingRooms={setLandingRooms}
             landingResult={landingResult}
+            setLandingResult={setLandingResult}
             showBreakdown={showBreakdown}
             setShowBreakdown={setShowBreakdown}
             saveLandingCalc={saveLandingCalc}
+            handleLandingCalculate={handleLandingCalculate}
             actionLoading={actionLoading}
             user={user}
             globalUsage={globalUsage}
@@ -521,13 +525,10 @@ const App: React.FC = () => {
           <>
             <EnergyField />
             <div className="p-6 md:p-12 pb-24 lg:pb-12 z-10 relative">
-              {/* Authenticated views would go here - keeping them mostly as is but wrapped in z-10 for background consistency */}
               {view === 'signin' || view === 'signup' ? (
                 <AuthView type={view as any} handleAuth={handleAuth} actionLoading={actionLoading} setView={setView} />
               ) : (
                 <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                   {/* Interior Dashboard UI Components... */}
-                   {/* Simplified placeholders for space efficiency in this XML block */}
                    {view === 'dashboard' && (
                      <div className="space-y-8">
                        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -545,10 +546,8 @@ const App: React.FC = () => {
                           <StatCard title="Cycles Ran" value={bills.length} icon={<History size={20} />} color="amber" />
                           <StatCard title="Total Collected" value={`₱${bills.reduce((s, b) => s + b.rooms.reduce((rs, r) => rs + r.billAmount, 0), 0).toLocaleString()}`} icon={<Receipt size={20} />} color="indigo" />
                        </div>
-                       {/* Rest of UI... */}
                      </div>
                    )}
-                   {/* Re-implementing the core views with the new design language... */}
                    {view === 'calculator' && (
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                          <div className="space-y-6">
@@ -576,14 +575,19 @@ const App: React.FC = () => {
                                   </div>
                                </div>
                             </div>
-                            {/* Room list and Trigger button... */}
+                            <div className="space-y-3">
+                               {rooms.map(r => (
+                                 <div key={r.id} className="flex gap-4 items-center bg-white p-4 rounded-2xl border border-slate-100">
+                                    <span className="flex-1 font-black text-sm">{r.name}</span>
+                                    <input type="text" inputMode="decimal" value={r.kwh} onChange={(e) => setRooms(rooms.map(rm => rm.id === r.id ? {...rm, kwh: e.target.value} : rm))} className="w-24 bg-slate-50 border-none px-4 py-2 rounded-xl text-right font-black text-sm focus:ring-2 focus:ring-blue-500/20" />
+                                 </div>
+                               ))}
+                            </div>
                             <button onClick={handleCalculate} className="w-full py-5 bg-blue-600 text-white rounded-[2rem] font-black text-xl shadow-2xl shadow-blue-500/30 hover:bg-blue-500 transition active:scale-95">Generate Audit Trail</button>
                          </div>
                          <div>
-                            {/* Temp Calc Result View... */}
                             {tempCalculation ? (
                                <div className="bg-slate-900 text-white p-10 rounded-[3rem] shadow-2xl space-y-10 animate-in zoom-in-95 duration-500">
-                                  {/* Result UI... */}
                                   <div className="flex justify-between items-end border-b border-white/10 pb-8">
                                      <h3 className="text-4xl font-black tracking-tighter">{tempCalculation.month} {tempCalculation.year}</h3>
                                      <button onClick={saveBill} disabled={actionLoading} className="px-8 py-3 bg-blue-600 rounded-xl font-black hover:bg-blue-500 transition shadow-xl shadow-blue-500/20">{actionLoading ? <Loader2 className="animate-spin" /> : 'Cloud Save'}</button>
@@ -600,7 +604,6 @@ const App: React.FC = () => {
                          </div>
                       </div>
                    )}
-                   {/* History view... */}
                    {view === 'history' && (
                      <div className="grid grid-cols-1 gap-4">
                         {bills.map(b => (
