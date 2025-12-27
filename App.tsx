@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Zap, 
   LayoutDashboard, 
@@ -28,20 +28,14 @@ import {
   Facebook,
   Globe,
   Sparkles,
-  RefreshCw
+  RefreshCw,
+  Gauge
 } from 'lucide-react';
 import { AppView, User, RoomInput, BillRecord, RentalProperty } from './types';
 import { storageService } from './services/storageService';
 import { calculateBill } from './logic/billCalculator';
 import { exportService } from './services/exportService';
 import { isFirebaseReady, firebaseConfig } from './firebase';
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  ResponsiveContainer, 
-  Tooltip 
-} from 'recharts';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
@@ -160,183 +154,193 @@ const LandingView: React.FC<LandingViewProps> = ({
   setView, landingMainKwh, setLandingMainKwh, rate, setRate, 
   landingRooms, setLandingRooms, landingResult, setLandingResult, showBreakdown, 
   setShowBreakdown, saveLandingCalc, handleLandingCalculate, actionLoading, user, globalUsage, isStale
-}) => (
-  <div className="min-h-screen flex flex-col relative">
-    <EnergyField />
-    
-    <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full z-10 animate-in fade-in slide-in-from-top-4 duration-700">
-      <BrandLogo />
-      <div className="flex gap-4 items-center">
-        <div className="hidden sm:flex items-center gap-2 bg-white/50 border border-slate-200/50 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter text-slate-500 glass">
-          <Globe size={12} className="text-blue-500 animate-pulse" />
-          {globalUsage.toLocaleString()} Calcs Worldwide
+}) => {
+  const liveTotalSubmeter = useMemo(() => {
+    return landingRooms.reduce((sum, r) => sum + (Number(r.kwh) || 0), 0);
+  }, [landingRooms]);
+
+  const liveMissingKwh = useMemo(() => {
+    const main = Number(landingMainKwh) || 0;
+    return Math.max(0, main - liveTotalSubmeter);
+  }, [landingMainKwh, liveTotalSubmeter]);
+
+  return (
+    <div className="min-h-screen flex flex-col relative">
+      <EnergyField />
+      
+      <nav className="p-6 flex justify-between items-center max-w-7xl mx-auto w-full z-10 animate-in fade-in slide-in-from-top-4 duration-700">
+        <BrandLogo />
+        <div className="flex gap-4 items-center">
+          <div className="hidden sm:flex items-center gap-2 bg-white/50 border border-slate-200/50 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-tighter text-slate-500 glass">
+            <Globe size={12} className="text-blue-500 animate-pulse" />
+            {globalUsage.toLocaleString()} Calcs Worldwide
+          </div>
+          <button onClick={() => setView('signin')} className="px-4 py-2 text-slate-600 hover:text-blue-600 font-bold transition">Login</button>
+          <button onClick={() => setView('signup')} className="px-6 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200/50 hover:-translate-y-1 active:scale-95">Register</button>
         </div>
-        <button onClick={() => setView('signin')} className="px-4 py-2 text-slate-600 hover:text-blue-600 font-bold transition">Login</button>
-        <button onClick={() => setView('signup')} className="px-6 py-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200/50 hover:-translate-y-1 active:scale-95">Register</button>
-      </div>
-    </nav>
+      </nav>
 
-    <main className="flex-1 max-w-7xl mx-auto w-full px-6 flex flex-col lg:flex-row items-center lg:items-start gap-12 pt-12 pb-20 z-10">
-      <div className="flex-1 space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
-        <div className="inline-flex items-center gap-2 bg-blue-100/80 text-blue-700 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest glass">
-          <Sparkles size={14} className="animate-spin-slow" /> Powering Rental Clusters
-        </div>
-        <h1 className="text-6xl md:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter">
-          Master Your <br/>
-          <span className="gradient-text">Utility Logic.</span>
-        </h1>
-        <p className="text-xl text-slate-500 max-w-lg leading-relaxed font-medium">
-          The ultimate proportional distribution algorithm. Eliminate tenant disputes by fairly allocating system losses based on real-time consumption shares.
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-6 pt-4">
-          <button onClick={() => setView('signup')} className="px-10 py-5 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:bg-slate-800 transition shadow-2xl flex items-center justify-center gap-3 group">
-            Get Started Free <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform"/>
-          </button>
-          <div className="flex items-center gap-4 p-4 rounded-2xl border border-slate-200/50 glass">
-            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
-               <Receipt size={24} />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Audit Trails</p>
-              <p className="text-sm font-black text-slate-900">PDF & Excel Exports</p>
-            </div>
+      <main className="flex-1 max-w-7xl mx-auto w-full px-6 flex flex-col lg:flex-row items-center lg:items-start gap-12 pt-12 pb-20 z-10">
+        <div className="flex-1 space-y-10 animate-in fade-in slide-in-from-left-8 duration-1000">
+          <div className="inline-flex items-center gap-2 bg-blue-100/80 text-blue-700 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest glass">
+            <Sparkles size={14} className="animate-spin-slow" /> Powering Rental Clusters
           </div>
-        </div>
-      </div>
-
-      <div className="flex-1 w-full max-w-2xl bg-white/80 p-8 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-white/50 glass animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
-        <div className="space-y-8">
-          <div className="flex justify-between items-end">
-            <div>
-              <h3 className="text-3xl font-black text-slate-900">Live Lab</h3>
-              <p className="text-slate-500 text-sm font-medium">Configure and execute distribution</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2 group">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2 group-hover:text-blue-500 transition">Main Meter (kWh)</label>
-              <input type="text" inputMode="decimal" value={landingMainKwh} onChange={(e) => setLandingMainKwh(e.target.value)} className="w-full bg-slate-50/50 px-5 py-4 rounded-2xl border-2 border-transparent focus:border-blue-500/20 focus:bg-white transition text-xl font-black outline-none" />
-            </div>
-            <div className="space-y-2 group">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2 group-hover:text-blue-500 transition">Rate (₱/kWh)</label>
-              <input type="text" inputMode="decimal" value={rate} onChange={(e) => setRate(e.target.value)} className="w-full bg-slate-50/50 px-5 py-4 rounded-2xl border-2 border-transparent focus:border-blue-500/20 focus:bg-white transition text-xl font-black outline-none" />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex justify-between items-center px-2">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Property Units</label>
-              <button onClick={() => setLandingRooms([...landingRooms, { id: Date.now().toString(), name: `Unit ${landingRooms.length+1}`, kwh: '0' }])} className="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg text-[10px] font-black hover:bg-blue-100 transition uppercase tracking-wider">+ New Unit</button>
-            </div>
-            <div className="space-y-3 max-h-64 overflow-y-auto pr-2 scrollbar-hide">
-              {landingRooms.map(r => (
-                <div key={r.id} className="flex gap-4 items-center bg-white border border-slate-100 p-5 rounded-[1.5rem] shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300">
-                  <input type="text" value={r.name} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, name: e.target.value} : lr))} className="flex-1 bg-transparent border-none p-0 text-sm font-black text-slate-700 focus:ring-0" />
-                  <div className="flex items-center gap-3">
-                    <input type="text" inputMode="decimal" value={r.kwh} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, kwh: e.target.value} : lr))} className="w-24 bg-slate-50 border-none px-4 py-2 rounded-xl text-right font-black text-sm focus:ring-2 focus:ring-blue-500/20" />
-                    <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">kWh</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {(!landingResult || isStale) && (
-            <button 
-              onClick={handleLandingCalculate} 
-              disabled={actionLoading}
-              className={`w-full py-6 rounded-[2rem] font-black text-xl shadow-2xl transition active:scale-95 flex items-center justify-center gap-3 ${isStale ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/30' : 'bg-blue-600 hover:bg-blue-500 shadow-blue-500/30'}`}
-            >
-              {actionLoading ? <Loader2 className="animate-spin" size={24}/> : isStale ? <><RefreshCw size={24} className="animate-spin-slow"/> Update Audit Trail</> : <><Zap size={24}/> Execute Distribution Logic</>}
+          <h1 className="text-6xl md:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter">
+            Master Your <br/>
+            <span className="gradient-text">Utility Logic.</span>
+          </h1>
+          <p className="text-xl text-slate-500 max-w-lg leading-relaxed font-medium">
+            The ultimate proportional distribution algorithm. Eliminate tenant disputes by fairly allocating system losses based on real-time consumption shares.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-6 pt-4">
+            <button onClick={() => setView('signup')} className="px-10 py-5 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:bg-slate-800 transition shadow-2xl flex items-center justify-center gap-3 group">
+              Get Started Free <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform"/>
             </button>
-          )}
+            <div className="flex items-center gap-4 p-4 rounded-2xl border border-slate-200/50 glass">
+              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
+                 <Receipt size={24} />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Audit Trails</p>
+                <p className="text-sm font-black text-slate-900">PDF & Excel Exports</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          {landingResult && (
-            <div className={`bg-slate-900 rounded-[2.5rem] p-8 text-white space-y-8 animate-in zoom-in-95 duration-500 shadow-2xl relative overflow-hidden transition-all duration-500 ${isStale ? 'opacity-40 grayscale-[0.5] scale-[0.98]' : 'opacity-100'}`}>
-              {isStale && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-900/40 backdrop-blur-[2px]">
-                   <div className="bg-amber-500 text-slate-900 px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest shadow-2xl animate-bounce">
-                     Inputs Modified - Recompute Required
-                   </div>
+        <div className="flex-1 w-full max-w-2xl bg-white/80 p-8 rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-white/50 glass animate-in fade-in slide-in-from-right-8 duration-1000 delay-200">
+          <div className="space-y-8">
+            <div className="flex justify-between items-end">
+              <div>
+                <h3 className="text-3xl font-black text-slate-900">Live Lab</h3>
+                <p className="text-slate-500 text-sm font-medium">Configure and execute distribution</p>
+              </div>
+              {liveMissingKwh > 0 && (
+                <div className="flex flex-col items-end animate-in fade-in zoom-in-90">
+                  <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">Live Discrepancy</span>
+                  <span className="text-xl font-black text-amber-600">+{liveMissingKwh.toFixed(2)} kWh</span>
                 </div>
               )}
-              <div className="absolute top-0 right-0 p-8 opacity-5"><Zap size={100} /></div>
-              <div className="relative z-10 flex justify-between items-start">
-                <div>
-                  <p className="text-[10px] text-blue-400 uppercase font-bold tracking-widest mb-1">Energy Loss Shared</p>
-                  <p className="text-3xl font-black text-amber-400">{landingResult.missingKwh.toFixed(2)} <span className="text-sm font-medium">kWh</span></p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] text-blue-400 uppercase font-bold tracking-widest mb-1">Total Cluster Bill</p>
-                  <p className="text-3xl font-black">₱{landingResult.rooms.reduce((s, r) => s + r.billAmount, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                </div>
-              </div>
+            </div>
 
-              <div className="relative z-10 space-y-4">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Statement Overview</h4>
-                  <button onClick={() => setShowBreakdown(!showBreakdown)} className="text-[10px] font-black text-blue-400 flex items-center gap-2 uppercase hover:underline">
-                    {showBreakdown ? 'Hide Logic' : 'Audit Math'}
-                    {showBreakdown ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
-                  </button>
-                </div>
-                
-                {!showBreakdown ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {landingResult.rooms.map(room => (
-                      <div key={room.id} className="flex justify-between items-center bg-white/5 border border-white/10 p-4 rounded-2xl">
-                        <span className="text-xs font-bold text-slate-300">{room.name}</span>
-                        <span className="font-black text-sm">₱{room.billAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <ComputationBreakdown bill={landingResult} />
-                )}
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2 group">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2 group-hover:text-blue-500 transition">Main Meter (kWh)</label>
+                <input type="text" inputMode="decimal" value={landingMainKwh} onChange={(e) => setLandingMainKwh(e.target.value)} className="w-full bg-slate-50/50 px-5 py-4 rounded-2xl border-2 border-transparent focus:border-blue-500/20 focus:bg-white transition text-xl font-black outline-none" />
               </div>
-
-              <div className="relative z-10 flex flex-col sm:flex-row gap-4">
-                <button onClick={() => setLandingResult(null)} className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition border border-white/10">
-                  Reset Values
-                </button>
-                <button onClick={() => exportService.toPDF(landingResult)} className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2 border border-white/10">
-                  <FileDown size={16}/> PDF Report
-                </button>
-                <button onClick={saveLandingCalc} disabled={actionLoading || isStale} className="flex-[2] py-4 bg-blue-600 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-blue-500 transition shadow-2xl shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                  {actionLoading ? <Loader2 className="animate-spin" size={24}/> : user ? <><CheckCircle2 size={24}/> Cloud Sync</> : <><Plus size={24}/> Secure Data</>}
-                </button>
+              <div className="space-y-2 group">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2 group-hover:text-blue-500 transition">Rate (₱/kWh)</label>
+                <input type="text" inputMode="decimal" value={rate} onChange={(e) => setRate(e.target.value)} className="w-full bg-slate-50/50 px-5 py-4 rounded-2xl border-2 border-transparent focus:border-blue-500/20 focus:bg-white transition text-xl font-black outline-none" />
               </div>
             </div>
-          )}
-        </div>
-      </div>
-    </main>
 
-    <footer className="max-w-7xl mx-auto w-full px-6 py-12 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-8 z-10 animate-in fade-in duration-1000">
-      <div className="flex flex-col gap-1">
-        <BrandLogo className="h-8 w-8" textClassName="text-xl" />
-        <p className="text-slate-400 text-xs font-bold">The Gold Standard for Submeter Management.</p>
-      </div>
-      
-      <a href="https://www.facebook.com/shemz.rhiew" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 bg-white px-6 py-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 hover:border-blue-400 transition-all duration-300 group">
-        <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-          <Facebook size={24} />
-        </div>
-        <div>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-blue-500 transition">Contact Developer</p>
-          <p className="text-sm font-black text-slate-900">Inquiries & Suggestions</p>
-        </div>
-        <ExternalLink size={14} className="text-slate-300 group-hover:text-blue-500" />
-      </a>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center px-2">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Property Units</label>
+                <button onClick={() => setLandingRooms([...landingRooms, { id: Date.now().toString(), name: `Unit ${landingRooms.length+1}`, kwh: '0' }])} className="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg text-[10px] font-black hover:bg-blue-100 transition uppercase tracking-wider">+ New Unit</button>
+              </div>
+              <div className="space-y-3 max-h-64 overflow-y-auto pr-2 scrollbar-hide">
+                {landingRooms.map(r => (
+                  <div key={r.id} className="flex gap-4 items-center bg-white border border-slate-100 p-5 rounded-[1.5rem] shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-300">
+                    <input type="text" value={r.name} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, name: e.target.value} : lr))} className="flex-1 bg-transparent border-none p-0 text-sm font-black text-slate-700 focus:ring-0" />
+                    <div className="flex items-center gap-3">
+                      <input type="text" inputMode="decimal" value={r.kwh} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, kwh: e.target.value} : lr))} className="w-24 bg-slate-50 border-none px-4 py-2 rounded-xl text-right font-black text-sm focus:ring-2 focus:ring-blue-500/20" />
+                      <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">kWh</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-      <div className="text-slate-300 text-[10px] font-black uppercase tracking-widest">
-        © 2024 VoltShare System v2.0
-      </div>
-    </footer>
-  </div>
-);
+            <div className="flex justify-center">
+              <button 
+                onClick={handleLandingCalculate} 
+                disabled={actionLoading}
+                className={`px-10 py-3 rounded-xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 border-2 ${isStale ? 'bg-amber-500 border-amber-600 text-white' : 'bg-blue-600 border-blue-700 text-white hover:bg-blue-700'}`}
+              >
+                {actionLoading ? <Loader2 className="animate-spin" size={20}/> : <><Calculator size={20}/> Calculate bill</>}
+              </button>
+            </div>
+
+            {landingResult && (
+              <div className={`bg-slate-900 rounded-[2.5rem] p-8 text-white space-y-8 animate-in zoom-in-95 duration-500 shadow-2xl relative overflow-hidden transition-all duration-500 ${isStale ? 'opacity-40 grayscale-[0.5] scale-[0.98]' : 'opacity-100'}`}>
+                <div className="absolute top-0 right-0 p-8 opacity-5"><Zap size={100} /></div>
+                <div className="relative z-10 flex justify-between items-start">
+                  <div>
+                    <p className="text-[10px] text-blue-400 uppercase font-bold tracking-widest mb-1">Energy Loss Shared</p>
+                    <p className="text-3xl font-black text-amber-400">{landingResult.missingKwh.toFixed(2)} <span className="text-sm font-medium">kWh</span></p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-blue-400 uppercase font-bold tracking-widest mb-1">Total Cluster Bill</p>
+                    <p className="text-3xl font-black">₱{landingResult.rooms.reduce((s, r) => s + r.billAmount, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                  </div>
+                </div>
+
+                <div className="relative z-10 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Statement Overview</h4>
+                    <button onClick={() => setShowBreakdown(!showBreakdown)} className="text-[10px] font-black text-blue-400 flex items-center gap-2 uppercase hover:underline">
+                      {showBreakdown ? 'Hide Logic' : 'Audit Math'}
+                      {showBreakdown ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
+                    </button>
+                  </div>
+                  
+                  {!showBreakdown ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {landingResult.rooms.map(room => (
+                        <div key={room.id} className="flex justify-between items-center bg-white/5 border border-white/10 p-4 rounded-2xl">
+                          <span className="text-xs font-bold text-slate-300">{room.name}</span>
+                          <span className="font-black text-sm">₱{room.billAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <ComputationBreakdown bill={landingResult} />
+                  )}
+                </div>
+
+                <div className="relative z-10 flex flex-col sm:flex-row gap-4">
+                  <button onClick={() => setLandingResult(null)} className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition border border-white/10">
+                    Reset Values
+                  </button>
+                  <button onClick={() => exportService.toPDF(landingResult)} className="flex-1 py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2 border border-white/10">
+                    <FileDown size={16}/> PDF Report
+                  </button>
+                  <button onClick={saveLandingCalc} disabled={actionLoading || isStale} className="flex-[2] py-4 bg-blue-600 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-blue-500 transition shadow-2xl shadow-blue-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    {actionLoading ? <Loader2 className="animate-spin" size={24}/> : user ? <><CheckCircle2 size={24}/> Cloud Sync</> : <><Plus size={24}/> Secure Data</>}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+
+      <footer className="max-w-7xl mx-auto w-full px-6 py-12 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-8 z-10 animate-in fade-in duration-1000">
+        <div className="flex flex-col gap-1">
+          <BrandLogo className="h-8 w-8" textClassName="text-xl" />
+          <p className="text-slate-400 text-xs font-bold">The Gold Standard for Submeter Management.</p>
+        </div>
+        
+        <a href="https://www.facebook.com/shemz.rhiew" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 bg-white px-6 py-4 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 hover:border-blue-400 transition-all duration-300 group">
+          <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+            <Facebook size={24} />
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-blue-500 transition">Contact Developer</p>
+            <p className="text-sm font-black text-slate-900">Inquiries & Suggestions</p>
+          </div>
+          <ExternalLink size={14} className="text-slate-300 group-hover:text-blue-500" />
+        </a>
+
+        <div className="text-slate-300 text-[10px] font-black uppercase tracking-widest">
+          © 2024 VoltShare System v2.0
+        </div>
+      </footer>
+    </div>
+  );
+};
 
 // Main App Component
 const App: React.FC = () => {
@@ -406,7 +410,7 @@ const App: React.FC = () => {
   const handleLandingCalculate = async () => {
     setActionLoading(true);
     // Simulate complex calculation process
-    await new Promise(r => setTimeout(r, 800));
+    await new Promise(r => setTimeout(r, 600));
     const result = calculateBill(landingMainKwh, rate, landingRooms, month, year);
     setLandingResult(result);
     setIsStale(false);
