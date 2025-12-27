@@ -192,11 +192,11 @@ const LandingView: React.FC<LandingViewProps> = ({
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Main Meter (kWh)</label>
-              <input type="number" value={landingMainKwh} onChange={(e) => setLandingMainKwh(parseFloat(e.target.value) || 0)} className="w-full bg-slate-50 px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-lg font-bold" />
+              <input type="number" step="any" value={landingMainKwh} onChange={(e) => setLandingMainKwh(parseFloat(e.target.value) || 0)} className="w-full bg-slate-50 px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-lg font-bold" />
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rate (₱/kWh)</label>
-              <input type="number" value={rate} onChange={(e) => setRate(parseFloat(e.target.value) || 0)} className="w-full bg-slate-50 px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-lg font-bold" />
+              <input type="number" step="any" value={rate} onChange={(e) => setRate(parseFloat(e.target.value) || 0)} className="w-full bg-slate-50 px-4 py-3 rounded-xl border-none focus:ring-2 focus:ring-blue-500 text-lg font-bold" />
             </div>
           </div>
 
@@ -210,7 +210,7 @@ const LandingView: React.FC<LandingViewProps> = ({
                 <div key={r.id} className="flex gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-transparent hover:border-slate-200 transition">
                   <input type="text" value={r.name} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, name: e.target.value} : lr))} className="flex-1 bg-transparent border-none p-0 text-sm font-bold text-slate-700 focus:ring-0" />
                   <div className="flex items-center gap-2">
-                    <input type="number" value={r.kwh} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, kwh: parseFloat(e.target.value) || 0} : lr))} className="w-24 bg-white px-3 py-2 rounded-lg border border-slate-200 text-right font-bold text-sm" />
+                    <input type="number" step="any" value={r.kwh} onChange={(e) => setLandingRooms(landingRooms.map(lr => lr.id === r.id ? {...lr, kwh: parseFloat(e.target.value) || 0} : lr))} className="w-24 bg-white px-3 py-2 rounded-lg border border-slate-200 text-right font-bold text-sm" />
                     <span className="text-xs text-slate-400 font-bold">kWh</span>
                   </div>
                 </div>
@@ -734,8 +734,8 @@ const App: React.FC = () => {
                         <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Month</label><select value={month} onChange={(e) => setMonth(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500">{['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => (<option key={m} value={m}>{m}</option>))}</select></div>
                         <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Year</label><input type="number" value={year} onChange={(e) => setYear(parseInt(e.target.value))} className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500" /></div>
                       </div>
-                      <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Rate (₱/kWh)</label><input type="number" step="0.01" value={rate} onChange={(e) => setRate(parseFloat(e.target.value) || 0)} className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-xl font-bold text-blue-600" /></div>
-                      <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Main Meter Reading (kWh)</label><input type="number" step="0.01" value={mainKwh} onChange={(e) => setMainKwh(parseFloat(e.target.value) || 0)} className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-xl font-bold" /></div>
+                      <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Rate (₱/kWh)</label><input type="number" step="any" value={rate} onChange={(e) => setRate(parseFloat(e.target.value) || 0)} className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-xl font-bold text-blue-600" /></div>
+                      <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Main Meter Reading (kWh)</label><input type="number" step="any" value={mainKwh} onChange={(e) => setMainKwh(parseFloat(e.target.value) || 0)} className="w-full px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-xl font-bold" /></div>
                     </div>
                     <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
                       <div className="flex justify-between items-center border-b pb-4 border-slate-100 mb-6"><h3 className="font-bold text-lg">Submeter Readings</h3><button onClick={addRoom} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition"><Plus size={20} /></button></div>
@@ -744,7 +744,7 @@ const App: React.FC = () => {
                           <div key={room.id} className="flex gap-4 items-center p-4 bg-slate-50 rounded-xl group relative border border-transparent hover:border-blue-100 transition">
                             <div className="flex-1">
                               <input type="text" value={room.name} onChange={(e) => updateRoom(room.id, { name: e.target.value })} className="w-full bg-transparent border-none p-0 text-sm font-bold text-slate-900 focus:ring-0" placeholder="Room ID" />
-                              <div className="flex items-center gap-2 mt-1"><input type="number" value={room.kwh} onChange={(e) => updateRoom(room.id, { kwh: parseFloat(e.target.value) || 0 })} className="w-full bg-white px-3 py-2 rounded-lg border border-slate-200 focus:outline-none text-lg font-bold" /><span className="text-xs text-slate-400 font-bold">kWh</span></div>
+                              <div className="flex items-center gap-2 mt-1"><input type="number" step="any" value={room.kwh} onChange={(e) => updateRoom(room.id, { kwh: parseFloat(e.target.value) || 0 })} className="w-full bg-white px-3 py-2 rounded-lg border border-slate-200 focus:outline-none text-lg font-bold" /><span className="text-xs text-slate-400 font-bold">kWh</span></div>
                             </div>
                             <button onClick={() => removeRoom(room.id)} className="p-2 text-slate-300 hover:text-red-500 transition"><Trash2 size={18} /></button>
                           </div>
