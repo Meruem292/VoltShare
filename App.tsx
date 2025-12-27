@@ -44,13 +44,37 @@ import {
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
-// Logo Component
-const BrandLogo: React.FC<{ className?: string, textClassName?: string }> = ({ className = "w-10 h-10", textClassName = "text-2xl" }) => (
-  <div className="flex items-center gap-3">
-    <img src="logo.png" alt="VoltShare Logo" className={`${className} object-contain transition-transform hover:scale-110 duration-300`} />
-    <span className={`font-bold ${textClassName} tracking-tight`}>
-      <span className="text-blue-600">Volt</span><span className="text-slate-400">Share</span>
-    </span>
+// Official BrandLogo Component - Recreated as High-Fidelity SVG
+const BrandLogo: React.FC<{ className?: string, textClassName?: string, hideText?: boolean }> = ({ 
+  className = "h-10 w-10", 
+  textClassName = "text-2xl",
+  hideText = false
+}) => (
+  <div className="flex items-center gap-3 group">
+    <div className={`relative ${className} transition-all duration-500 group-hover:scale-110 group-hover:drop-shadow-[0_0_15px_rgba(37,99,235,0.4)]`}>
+      <svg viewBox="0 0 100 100" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Outer Circle Container */}
+        <circle cx="50" cy="50" r="45" stroke="#2563eb" strokeWidth="6" />
+        <circle cx="50" cy="50" r="38" stroke="#2563eb" strokeWidth="2" strokeDasharray="8 4" opacity="0.3" />
+        
+        {/* Directional Arrows (Cycle/Share Theme) */}
+        <path d="M25 50 C 25 30, 40 25, 50 25 M75 50 C 75 70, 60 75, 50 75" stroke="#2563eb" strokeWidth="4" strokeLinecap="round" />
+        <path d="M48 22 L52 25 L48 28" fill="#2563eb" />
+        <path d="M52 72 L48 75 L52 78" fill="#2563eb" />
+
+        {/* House Icons */}
+        <path d="M28 52 L32 48 L36 52 V58 H28 V52Z" fill="#2563eb" />
+        <path d="M64 42 L68 38 L72 42 V48 H64 V42Z" fill="#2563eb" />
+        
+        {/* Central Lightning Bolt (Volt Theme) */}
+        <path d="M52 35 L40 55 H50 L48 70 L60 50 H50 L52 35Z" fill="#2563eb" />
+      </svg>
+    </div>
+    {!hideText && (
+      <span className={`font-black ${textClassName} tracking-tighter transition-colors duration-300`}>
+        <span className="text-blue-600">Volt</span><span className="text-slate-400">Share</span>
+      </span>
+    )}
   </div>
 );
 
@@ -283,7 +307,7 @@ const LandingView: React.FC<LandingViewProps> = ({
 
     <footer className="max-w-7xl mx-auto w-full px-6 py-12 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-8 z-10 animate-in fade-in duration-1000">
       <div className="flex flex-col gap-1">
-        <BrandLogo className="w-8 h-8" textClassName="text-xl" />
+        <BrandLogo className="h-8 w-8" textClassName="text-xl" />
         <p className="text-slate-400 text-xs font-bold">The Gold Standard for Submeter Management.</p>
       </div>
       
@@ -638,7 +662,7 @@ const AuthView: React.FC<{ type: 'signin' | 'signup', handleAuth: any, actionLoa
     <div className="bg-white/80 p-12 rounded-[3rem] shadow-2xl w-full max-w-md space-y-10 border border-white/50 glass animate-in zoom-in-95 duration-500">
       <div className="text-center">
         <div className="inline-flex items-center justify-center w-20 h-20 mb-6 animate-bounce-slow">
-           <img src="logo.png" className="w-full h-full object-contain" alt="VoltShare Logo" />
+           <BrandLogo hideText />
         </div>
         <h2 className="text-4xl font-black text-slate-900 tracking-tighter">{type === 'signin' ? 'Welcome Back' : 'Create Cluster'}</h2>
         <p className="text-slate-500 mt-2 font-medium">Control your grid from anywhere.</p>
